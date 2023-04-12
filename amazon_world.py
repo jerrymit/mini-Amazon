@@ -28,6 +28,7 @@ def amazon_ups_server():
 
     # print the client address
     print(f'Got a connection from {addr}')
+    return client_socket
 
 def amazon_world_client(amazon_ups_socket):
     # receive a message from the UPS client
@@ -61,6 +62,7 @@ def amazon_world_client(amazon_ups_socket):
     # create an AConnect message to send to the world server
     connect_msg = world_amazon_pb2.AConnect()
     connect_msg.isAmazon = True  # set the isAmazon field to True
+    connect_msg.worldid = UToA_msg.worldid  # set the worldid field to the received worldid
 
     # encode the AConnect message and send it to the world server
     encoded_msg = connect_msg.SerializeToString()
@@ -83,7 +85,18 @@ def amazon_world_client(amazon_ups_socket):
 
     # print the received message
     print(connected_msg)
+    if (connect_msg.result == "success"):
+        # send a message to the UPS client
+        AToU_msg = amazon_ups_pb2.AzConnected()
+        AToU_msg.worldid = UToA_msg.worldid
+        AToU_msg.result = "success"
+        # encode the AConnect message and send it to the world server
+        encoded_msg = AToU_msg.SerializeToString()
+        _EncodeVarint(amazon_world_socket.send, len(encoded_msg), None)
+        amazon_world_socket.send(encoded_msg)
+
+    return amazon_world_socket
 
 if __name__ == "__main__":
     amazon_ups_socket = amazon_ups_server()
-    amazon_world_client(amazon_ups_socket)
+    amazon_world_socket = amazon_world_client(amazon_ups_socket)
