@@ -3,6 +3,7 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _EncodeVarint
 import world_amazon_pb2
 import amazon_ups_pb2
+import time 
 
 
 def amazon_ups_server():
@@ -30,7 +31,7 @@ def amazon_ups_server():
     print(f'Got a connection from {addr}')
     return client_socket
 
-def amazon_world_client(amazon_ups_socket):
+def worldid_from_ups(amazon_ups_socket):
     # receive a message from the UPS client
     var_int_buff = []
     while True:
@@ -47,8 +48,9 @@ def amazon_world_client(amazon_ups_socket):
 
     # print the received message
     print("Received message with worldid:", UToA_msg.worldid)
+    return UToA_msg.worldid
 
-
+def amazon_world_client(amazon_ups_socket, worldid):
     # create a socket object
     amazon_world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -57,12 +59,32 @@ def amazon_world_client(amazon_ups_socket):
     port = 23456
 
     # connect to the world server
-    amazon_world_socket.connect((ip, port))
+    AToU_msg = amazon_ups_pb2.AzConnected()
+    AToU_msg.worldid = worldid
+    connected = False
+    retry_count = 0
+    max_retries = 10
+    while not connected and retry_count < max_retries:
+        time.sleep(2)
+        try:
+            amazon_world_socket.connect((ip, port))
+            connected = True
+        except:
+            retry_count += 1
+            # fail message
+            print("Connection to world server failed. Retrying...")
+    if not connected:
+        AToU_msg.result = "fail"
+        encoded_msg = AToU_msg.SerializeToString()
+        _EncodeVarint(amazon_ups_socket.send, len(encoded_msg), None)
+        amazon_ups_socket.send(encoded_msg)
+        return None
+    
 
     # create an AConnect message to send to the world server
     connect_msg = world_amazon_pb2.AConnect()
     connect_msg.isAmazon = True  # set the isAmazon field to True
-    connect_msg.worldid = UToA_msg.worldid  # set the worldid field to the received worldid
+    connect_msg.worldid = worldid  # set the worldid field to the received worldid
 
     # encode the AConnect message and send it to the world server
     encoded_msg = connect_msg.SerializeToString()
@@ -88,8 +110,6 @@ def amazon_world_client(amazon_ups_socket):
     if (connected_msg.result == "connected!"):
         print("Connection to world server successful!")
         # send a message to the UPS client
-        AToU_msg = amazon_ups_pb2.AzConnected()
-        AToU_msg.worldid = UToA_msg.worldid
         AToU_msg.result = "success"
         # encode the AConnect message and send it to the world server
 
@@ -102,4 +122,5 @@ def amazon_world_client(amazon_ups_socket):
 
 if __name__ == "__main__":
     amazon_ups_socket = amazon_ups_server()
-    amazon_world_socket = amazon_world_client(amazon_ups_socket)
+    worldid = worldid_from_ups(amazon_ups_socket)
+    amazon_world_socket = amazon_world_client(amazon_ups_socket, worldid)
