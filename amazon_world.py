@@ -71,20 +71,28 @@ def amazon_world_client(amazon_ups_socket, worldid):
             connected = True
         except:
             retry_count += 1
-            # fail message
             print("Connection to world server failed. Retrying...")
+
     if not connected:
         AToU_msg.result = "fail"
         encoded_msg = AToU_msg.SerializeToString()
         _EncodeVarint(amazon_ups_socket.send, len(encoded_msg), None)
         amazon_ups_socket.send(encoded_msg)
-        return None
+        raise Exception("Unable to connect to world server.")
     
 
     # create an AConnect message to send to the world server
     connect_msg = world_amazon_pb2.AConnect()
     connect_msg.isAmazon = True  # set the isAmazon field to True
     connect_msg.worldid = worldid  # set the worldid field to the received worldid
+
+    # add 100 AInitWarehouse messages to the AConnect message
+    for i in range(10):
+        for j in range(10):
+            init_warehouse = connect_msg.initwh.add()
+            init_warehouse.id = i * 10 + j
+            init_warehouse.x = i * 5
+            init_warehouse.y = j * 5
 
     # encode the AConnect message and send it to the world server
     encoded_msg = connect_msg.SerializeToString()
@@ -122,5 +130,10 @@ def amazon_world_client(amazon_ups_socket, worldid):
 
 if __name__ == "__main__":
     amazon_ups_socket = amazon_ups_server()
-    worldid = worldid_from_ups(amazon_ups_socket)
-    amazon_world_socket = amazon_world_client(amazon_ups_socket, worldid)
+    while True:
+        try:
+            worldid = worldid_from_ups(amazon_ups_socket)
+            amazon_world_socket = amazon_world_client(amazon_ups_socket, worldid)
+            break
+        except:
+            continue
