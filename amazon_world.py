@@ -4,6 +4,7 @@ from google.protobuf.internal.encoder import _EncodeVarint
 import world_amazon_pb2
 import amazon_ups_pb2
 import time 
+from message_sending import *
 
 
 def amazon_ups_server():
@@ -137,3 +138,27 @@ if __name__ == "__main__":
             break
         except:
             continue
+
+    # Example of handling a frontend request with product descriptions
+    frontend_request = [
+        {'description': 'product1', 'count': 10},
+        {'description': 'product2', 'count': 5},
+    ]
+
+    warehouse_id = 1  # Replace with the actual warehouse ID you want to use
+    send_purchase_more(amazon_world_socket, warehouse_id, frontend_request)
+
+    package_id = 12345  # Replace with the actual package ID
+    user_id = 67890  # Replace with the actual user ID (optional)
+    x = 1  # Replace with the actual x coordinate
+    y = 2  # Replace with the actual y coordinate
+    request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, frontend_request, x, y,user_id)
+    received_msg = receive_truck_at_wh(amazon_ups_socket)
+    
+    if received_msg.HasField("truckAtWH"):
+        truck_at_wh = received_msg.truckAtWH
+        print("Received UTruckAtWH message:")
+        print("Truck ID:", truck_at_wh.truck_id)
+        print("Warehouse ID:", truck_at_wh.warehouse_id)
+        print("Package ID:", truck_at_wh.package_id)
+        # Process the received UTruckAtWH message here, if necessary
