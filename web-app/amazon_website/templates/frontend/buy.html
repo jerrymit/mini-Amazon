@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Buy a Product</h1>
+  <form method="post">
+  {% csrf_token %}
+  <label for="product_id">Product:</label>
+    <select name="product_id">
+      {% for product in products %}
+        <option value="{{ product.id }}">{{ product.description }}</option>
+      {% endfor %}
+    </select><br>
+  <label for="quantity">Quantity:</label>
+  <input type="number" name="quantity" min="1"><br>
+  <label for="destination_x">Destination X:</label>
+  <input type="number" name="destination_x"><br>
+  <label for="destination_y">Destination Y:</label>
+  <input type="number" name="destination_y"><br>
+  <button type="submit">Buy</button>
+  </form>
+  {% if products %}
+        <h2>All products</h2>
+        <ul>
+        {% for product in products %}
+            <li>Product: {{ product.description }} Quantity: {{ product.count }}</li>
+        {% empty %}
+            <li>No products found.</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Product is empty.</p>
+    {% endif %}
+
+  {% if warehouses %}
+      <h2>All warehouses</h2>
+      <ul>
+      {% for warehouse in warehouses %}
+          <li>Location X: {{ warehouse.location_x }} Location Y: {{ warehouse.location_y }}</li>
+      {% empty %}
+          <li>No warehouses found.</li>
+      {% endfor %}
+      </ul>
+  {% else %}
+      <p>Warehouse is empty.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Product{% endblock %}
+
+{% block content %}
+  <h1>Add a New Product</h1>
+  <form method="post">
+    {% csrf_token %}
+    <label for="description">Description:</label>
+    <input type="text" name="description"><br>
+    <label for="count">Count:</label>
+    <input type="number" name="count" min="0"><br>
+    <button type="submit">Add Product</button>
+  </form>
+{% endblock %}

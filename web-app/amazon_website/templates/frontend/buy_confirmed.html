@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block content %}
+  <h1>Order Confirmation</h1>
+  <p>Your order has been placed:</p>
+  <ul>
+    <li>Product: {{ order.product.description }}</li>
+    <li>Quantity: {{ order.quantity }}</li>
+    <li>Shipment ID: {{ order.shipment.shipment_id }}</li>
+    <li>Warehouse: {{ order.shipment.warehouse }}</li>
+    <li>Destination X: {{ order.shipment.destination_x }}</li>
+    <li>Destination Y: {{ order.shipment.destination_y }}</li>
+  </ul>
+{% endblock %}
