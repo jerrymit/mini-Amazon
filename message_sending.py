@@ -1,8 +1,8 @@
 import socket
 from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _EncodeVarint
-import world_amazon_pb2
-import amazon_ups_pb2
+import invocated_files.world_amazon_pb2 as world_amazon_pb2
+import invocated_files.amazon_ups_pb2 as amazon_ups_pb2
 import time 
 
 
@@ -19,8 +19,13 @@ def send_purchase_more(amazon_world_socket, warehouse_id, products):
 
         for product in products:
             item = purchase_more.things.add()
+            item.id = product['id']  # Add id field
             item.description = product['description']
             item.count = product['count']
+
+        # Print the commands message before serialization
+        print("Commands message before serialization:")
+        print(commands)
 
         # Send ACommands message to the world server
         encoded_msg = commands.SerializeToString()
@@ -39,6 +44,9 @@ def send_purchase_more(amazon_world_socket, warehouse_id, products):
         whole_msg = amazon_world_socket.recv(msg_len)
         responses = world_amazon_pb2.AResponses()
         responses.ParseFromString(whole_msg)
+
+        print("Responses message:")
+        print(responses)
 
         # Check for ack in AResponses message
         if seqnum in responses.acks:
@@ -66,22 +74,26 @@ def request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, item
         product.count = item['count']
 
     # Send AMessage to UPS
+    print("AMessage to UPS message:")
+    print(message)
     encoded_msg = message.SerializeToString()
     _EncodeVarint(amazon_ups_socket.send, len(encoded_msg), None)
     amazon_ups_socket.send(encoded_msg)
-
+    
 def receive_truck_at_wh(amazon_ups_socket):
-    # Receive a message from the UPS client
     var_int_buff = []
     while True:
         buf = amazon_ups_socket.recv(1)
+        if not buf:
+            # If nothing is received, wait for a moment and try again
+            time.sleep(1)
+            continue
         var_int_buff += buf
         msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
         if new_pos != 0:
             break
     whole_msg = amazon_ups_socket.recv(msg_len)
 
-    # Parse the received message as a UMessage
     received_msg = amazon_ups_pb2.UMessage()
     received_msg.ParseFromString(whole_msg)
 

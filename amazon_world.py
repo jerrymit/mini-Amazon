@@ -1,10 +1,7 @@
+import random
 import socket
-from google.protobuf.internal.decoder import _DecodeVarint32
-from google.protobuf.internal.encoder import _EncodeVarint
-import world_amazon_pb2
-import amazon_ups_pb2
-import time 
 from message_sending import *
+from utility import *
 
 
 def amazon_ups_server():
@@ -91,7 +88,7 @@ def amazon_world_client(amazon_ups_socket, worldid):
     for i in range(10):
         for j in range(10):
             init_warehouse = connect_msg.initwh.add()
-            init_warehouse.id = i * 10 + j
+            init_warehouse.id = i * 10 + j + 1
             init_warehouse.x = i * 5
             init_warehouse.y = j * 5
 
@@ -129,7 +126,7 @@ def amazon_world_client(amazon_ups_socket, worldid):
 
     return amazon_world_socket
 
-if __name__ == "__main__":
+def main_process(warehouse_id, package_id, user_id, x, y, frontend_request):
     amazon_ups_socket = amazon_ups_server()
     while True:
         try:
@@ -139,22 +136,12 @@ if __name__ == "__main__":
         except:
             continue
 
-    # Example of handling a frontend request with product descriptions
-    frontend_request = [
-        {'description': 'product1', 'count': 10},
-        {'description': 'product2', 'count': 5},
-    ]
-
-    warehouse_id = 1  # Replace with the actual warehouse ID you want to use
     send_purchase_more(amazon_world_socket, warehouse_id, frontend_request)
-
-    package_id = 12345  # Replace with the actual package ID
-    user_id = 67890  # Replace with the actual user ID (optional)
-    x = 1  # Replace with the actual x coordinate
-    y = 2  # Replace with the actual y coordinate
-    request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, frontend_request, x, y,user_id)
+    print("after send_purchase_more")
+    request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, frontend_request, x, y, user_id)
+    print("after request_truck_to_warehouse")
     received_msg = receive_truck_at_wh(amazon_ups_socket)
-    
+
     if received_msg.HasField("truckAtWH"):
         truck_at_wh = received_msg.truckAtWH
         print("Received UTruckAtWH message:")
@@ -162,3 +149,19 @@ if __name__ == "__main__":
         print("Warehouse ID:", truck_at_wh.warehouse_id)
         print("Package ID:", truck_at_wh.package_id)
         # Process the received UTruckAtWH message here, if necessary
+
+
+if __name__ == "__main__":
+    # Example of handling a frontend request with product descriptions
+    frontend_request = [
+        {'id': 1, 'description': 'product1', 'count': 10},
+        {'id': 2, 'description': 'product2', 'count': 5},
+    ]
+
+    warehouse_id = random.randint(1, 100) 
+    package_id = generate_package_id()
+    user_id = 67890  # Replace with the actual user ID (optional)
+    x = 1  # Replace with the actual x coordinate
+    y = 2  # Replace with the actual y coordinate
+
+    main_process(warehouse_id, package_id, user_id, x, y, frontend_request)
