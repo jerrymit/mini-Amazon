@@ -33,7 +33,11 @@ class Order(models.Model):
     quantity = models.IntegerField()
     order_time = models.DateTimeField(default=timezone.now)
     shipment = models.ForeignKey(Shipment, on_delete = models.CASCADE)
-    
+
+class Cart(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+
 '''
 class Shipment(models.Model):
     shipment_id = models.AutoField(primary_key=True)
