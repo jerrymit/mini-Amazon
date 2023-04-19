@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+  <h1>Welcome to mini-Amazon</h1>
+  <p>Use the search bar to find products:</p>
+
+  <form method="get" action="/search_result">
+    <input type="text" name="search_input" placeholder="Search for products...">
+    <button type="submit">Search</button>
+  </form>
+  <p>
+    <button onclick="window.location.href='{% url 'buy' %}'">Buy Now</button>
+  </p>
+  <form method="get" action="/add_product">
+    <button type="submit">Add product</button>
+  </form>
+  <form method="get" action="/add_warehouse">
+    <button type="submit">Add warehouse</button>
+  </form>
+
+{% endblock %}
