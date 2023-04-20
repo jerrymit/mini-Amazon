@@ -1,8 +1,8 @@
-import socket
 from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _EncodeVarint
 import invocated_files.world_amazon_pb2 as world_amazon_pb2
 import invocated_files.amazon_ups_pb2 as amazon_ups_pb2
+from utility import *
 import time 
 
 
@@ -57,7 +57,7 @@ def send_purchase_more(amazon_world_socket, warehouse_id, products):
 
         seqnum += 1
 
-def request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, items, x, y, user_id):
+def request_truck_to_warehouse_bu(amazon_ups_socket, warehouse_id, package_id, items, x, y, user_id):
     # Create an AMessage with ASendTruck information
     message = amazon_ups_pb2.AMessage()
     send_truck = message.sendTruck
@@ -72,6 +72,17 @@ def request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, item
         product = send_truck.items.add()
         product.description = item['description']
         product.count = item['count']
+
+    # Send AMessage to UPS
+    print("AMessage to UPS message:")
+    print(message)
+    encoded_msg = message.SerializeToString()
+    _EncodeVarint(amazon_ups_socket.send, len(encoded_msg), None)
+    amazon_ups_socket.send(encoded_msg)
+
+def request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, request):
+    # Create an AMessage with ASendTruck information
+    message = construct_amessage_from_request(warehouse_id, package_id, request)
 
     # Send AMessage to UPS
     print("AMessage to UPS message:")
