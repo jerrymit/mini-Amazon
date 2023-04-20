@@ -28,7 +28,6 @@ class Shipment(models.Model):
 
 class Order(models.Model):
     order_id = models.AutoField(primary_key = True)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     product = models.ForeignKey(Product, on_delete = models.CASCADE, null=True)
     quantity = models.IntegerField()
     order_time = models.DateTimeField(default=timezone.now)

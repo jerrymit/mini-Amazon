@@ -1,5 +1,6 @@
 import random
 import socket
+import invocated_files.internal_pb2 as internal_pb2
 from message_sending import *
 from utility import *
 
@@ -138,7 +139,7 @@ def main_process(warehouse_id, package_id, user_id, x, y, frontend_request):
 
     send_purchase_more(amazon_world_socket, warehouse_id, frontend_request)
     print("after send_purchase_more")
-    request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, frontend_request, x, y, user_id)
+    request_truck_to_warehouse_bu(amazon_ups_socket, warehouse_id, package_id, frontend_request, x, y, user_id)
     print("after request_truck_to_warehouse")
     received_msg = receive_truck_at_wh(amazon_ups_socket)
 
@@ -152,15 +153,16 @@ def main_process(warehouse_id, package_id, user_id, x, y, frontend_request):
 
 
 if __name__ == "__main__":
-    # Example of handling a frontend request with product descriptions
+    
+    warehouse_id = random.randint(1, 100) 
+    package_id = generate_package_id()
+
+    # need the below parameter part from frontend via socket
     frontend_request = [
         {'id': 1, 'description': 'product1', 'count': 10},
         {'id': 2, 'description': 'product2', 'count': 5},
     ]
-
-    warehouse_id = random.randint(1, 100) 
-    package_id = generate_package_id()
-    user_id = 67890  # Replace with the actual user ID (optional)
+    user_id = 67890  # optional user id
     x = 1  # Replace with the actual x coordinate
     y = 2  # Replace with the actual y coordinate
 
