@@ -22,6 +22,10 @@
       {% endfor %}
     </tbody>
   </table>
+  <form method="post" action="{% url 'Cartbuy' %}">
+    {% csrf_token %}
+    <button type="submit">Buy All</button>
+  </form>
 {% else %}
   <p>Your cart is empty.</p>
 {% endif %}

@@ -12,5 +12,6 @@ urlpatterns = [
     path('add_warehouse', views.add_warehouse, name='add_warehouse'),
     path('cart', views.cart_items, name='cart'),
     path('buy_confirmed/<int:order_id>', views.buy_confirm, name='buy_confirmed'),
+    path('Cartbuy', views.Cartbuy, name='Cartbuy'),
     #path('home/search_results/order', views.assign_order, name='order'),
 ]

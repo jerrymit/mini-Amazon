@@ -4,8 +4,11 @@ from django.contrib import messages
 from django.http import JsonResponse
 from random import choice
 from .models import *
+from google.protobuf.internal.decoder import _DecodeVarint32
+from google.protobuf.internal.encoder import _EncodeVarint
 import socket, json, time
-import uuid
+#import protobuf_pb2
+
 # Create your views here.
 
 print("Trying to connect to amazon server")
@@ -125,7 +128,87 @@ def Buy(request):
         products = Product.objects.all()
         warehouses = Warehouse.objects.all()
         return render(request, 'frontend/buy.html', {'products': products, 'warehouses': warehouses})
-
+    
+def Cartbuy(request):
+    cart = request.session.get('cart', {})
+    orders = {}
+    
+    for key, products in cart.items():
+        destination_x, destination_y = key.split(',')
+        orders[key] = []
+        #print("key: " + key)
+        #print("products: ")
+        #print(products)
+        orders[key].append({'destination_x': destination_x})
+        orders[key].append({'destination_y': destination_y})
+        '''
+        if key not in orders:
+            warehouses = Warehouse.objects.all()
+            warehouse = random.choice(warehouses)
+            shipment = Shipment.objects.create(
+                status="ordered",
+                destination_x=destination_x,
+                destination_y=destination_y,
+                warehouse=warehouse,
+            )
+        '''    
+        for product in products:
+            orders[key].append({ # add the order to the list of orders for this key
+                'description': product['description'],
+                'quantity': product['quantity'],
+            })
+        
+        print("drders[key] value: ")
+        print(orders[key])
+        # serialize the orders data to JSON format
+        orders_data = json.dumps(orders[key])
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect(address)
+        client_socket.sendall(orders_data.encode())
+        client_socket.close()
+        '''
+        # create the orders for this package
+        shipment = Shipment.objects.get(destination_x=key.split(',')[0], destination_y=key.split(',')[1], status="ordered")
+        for order_data in products:
+            Order.objects.create(
+                user_id=request.user,
+                product=Product.objects.get(description=order_data['description']),
+                quantity=order_data['quantity'],
+                shipment=shipment,
+            )
+        '''
+    '''    
+    for key, orders_for_key in orders.items(): # send each package as JSON
+        data = {
+            'orders': orders_for_key,
+            'destination_x': key.split(',')[0],
+            'destination_y': key.split(',')[1],
+        }
+        data_str = json.dumps(data)
+        
+        # Create a socket and send the JSON string
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect(address)
+        client_socket.sendall(json.dumps(frontend_request).encode())
+        
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(address)
+        s.send(data_str.encode())
+        s.close()
+        
+        # create the orders for this package
+        shipment = Shipment.objects.get(destination_x=key.split(',')[0], destination_y=key.split(',')[1], status="ordered")
+        for order_data in orders_for_key:
+            Order.objects.create(
+                user_id=request.user,
+                product=Product.objects.get(description=order_data['description']),
+                quantity=order_data['quantity'],
+                shipment=shipment,
+            )
+    '''
+    # clear the cart and redirect to the confirmation page
+    request.session['cart'] = {}
+    return redirect('home')
 
 def add_to_cart(request):
     description = request.POST.get('description')
@@ -133,37 +216,49 @@ def add_to_cart(request):
     destination_x = request.POST.get('destination_x')
     destination_y = request.POST.get('destination_y')
 
-    # Get product object
-    product = get_object_or_404(Product, description=description)
-
     # Add product to cart
     cart = request.session.get('cart', {})
-    if product.id in cart:
-        for item in cart[product.id]:
-            if item['destination_x'] == destination_x and item['destination_y'] == destination_y:
+    key = f"{destination_x},{destination_y}"
+    if key in cart:
+        flag = 0
+        for item in cart[key]:
+            print("item: ", item)
+            if item['description'] == description:
                 item['quantity'] += quantity
-                break
-            else:
-                cart[product.id].append({'description': description,'quantity': quantity, 'destination_x': destination_x, 'destination_y': destination_y})
+                flag = 1
+                break   
+        if flag == 0:
+            cart[key].append({
+            'description': description,
+            'quantity': quantity,
+            'destination_x':destination_x,
+            'destination_y':destination_y,
+        })
     else:
-        cart[product.id] = [{'description': description,'quantity': quantity,'destination_x': destination_x, 'destination_y': destination_y}]
-
+        cart[key] = [{
+            'description': description,
+            'quantity': quantity,
+            'destination_x':destination_x,
+            'destination_y':destination_y,
+        }]
+    
     request.session['cart'] = cart
+    #request.session.clear()
 
 def cart_items(request):
     cart = request.session.get('cart', {})
     items = []
-    for product_id, product_items in cart.items():
-        print("product_id:", product_id)
-        print("product_items:", product_items)
-        product = get_object_or_404(Product, id=product_id)
+    for key, product_items in cart.items():
+        destination_x, destination_y = key.split(',')
+        print("item_key:", key)
+        print("item_value:", product_items)
         for item in product_items:
             items.append({
-                'product': product,
+                #'product': product,
                 'description': item['description'],
                 'quantity': item['quantity'],
-                'destination_x': item['destination_x'],
-                'destination_y': item['destination_y'],
+                'destination_x': destination_x,
+                'destination_y': destination_y,
             })
     context = {'items': items}
     return render(request, 'frontend/cart_items.html', context)

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Your order has been placed</h1>
+    <p>Thank you for your purchase. Your order <strong>#{{ order_id }}</strong> has been placed successfully and will be processed shortly.</p>
+    <p>Estimated delivery date: {{ delivery_date }}</p>
+    
+    <h2>Order details</h2>
+    <ol>
+      {% for order in orders %}
+        <li>{{ order.description }} x {{ order.quantity }}</li>
+      {% endfor %}
+    </ol>
+{% endblock %}
