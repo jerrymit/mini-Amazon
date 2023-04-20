@@ -7,21 +7,25 @@ import time
 
 
 
-def send_purchase_more(amazon_world_socket, warehouse_id, products):
+
+
+def send_purchase_more(amazon_world_socket, warehouse_id, frontend_request):
     seqnum = 1
 
     while True:
         # Create ACommands message with APurchaseMore information
-        commands = world_amazon_pb2.ACommands()
-        purchase_more = commands.buy.add()
-        purchase_more.whnum = warehouse_id
-        purchase_more.seqnum = seqnum
+        # commands = world_amazon_pb2.ACommands()
+        # purchase_more = commands.buy.add()
+        # purchase_more.whnum = warehouse_id
+        # purchase_more.seqnum = seqnum
 
-        for product in products:
-            item = purchase_more.things.add()
-            item.id = product['id']  # Add id field
-            item.description = product['description']
-            item.count = product['count']
+        # for product in frontend_request:
+        #     item = purchase_more.things.add()
+        #     item.id = product['id']  # Add id field
+        #     item.description = product['description']
+        #     item.count = product['count']
+
+        commands = construct_purchase_to_world(warehouse_id, seqnum, frontend_request)
 
         # Print the commands message before serialization
         print("Commands message before serialization:")
@@ -82,7 +86,7 @@ def request_truck_to_warehouse_bu(amazon_ups_socket, warehouse_id, package_id, i
 
 def request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, request):
     # Create an AMessage with ASendTruck information
-    message = construct_amessage_from_request(warehouse_id, package_id, request)
+    message = construct_ASendTruck_from_request(warehouse_id, package_id, request)
 
     # Send AMessage to UPS
     print("AMessage to UPS message:")
