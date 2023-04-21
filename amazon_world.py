@@ -1,5 +1,6 @@
 import random
 import socket
+import select
 import invocated_files.internal_pb2 as internal_pb2
 from message_sending import *
 from utility import *
@@ -127,19 +128,26 @@ def amazon_world_client(amazon_ups_socket, worldid):
 
     return amazon_world_socket
 
-def main_process(warehouse_id, package_id, user_id, x, y, frontend_request):
-    amazon_ups_socket = amazon_ups_server()
-    while True:
-        try:
-            worldid = worldid_from_ups(amazon_ups_socket)
-            amazon_world_socket = amazon_world_client(amazon_ups_socket, worldid)
-            break
-        except:
-            continue
+def internal_connection():
+    # create a TCP/IP socket
+    internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # get local machine name
+    host = socket.gethostname()
+
+    # set the port for UPS to connect to
+    port = 55555
+    internal_socket.bind((host, port))
+    return internal_socket
+
+
+def main_process(amazon_world_socket, amazon_ups_socket, warehouse_id, package_id, frontend_request):
+    
 
     send_purchase_more(amazon_world_socket, warehouse_id, frontend_request)
     print("after send_purchase_more")
-    request_truck_to_warehouse_bu(amazon_ups_socket, warehouse_id, package_id, frontend_request, x, y, user_id)
+    #request_truck_to_warehouse_bu(amazon_ups_socket, warehouse_id, package_id, frontend_request, x, y, user_id)
+    request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, frontend_request)
     print("after request_truck_to_warehouse")
     received_msg = receive_truck_at_wh(amazon_ups_socket)
 
@@ -152,18 +160,44 @@ def main_process(warehouse_id, package_id, user_id, x, y, frontend_request):
         # Process the received UTruckAtWH message here, if necessary
 
 
+
 if __name__ == "__main__":
-    
-    warehouse_id = random.randint(1, 100) 
-    package_id = generate_package_id()
+    amazon_ups_socket = amazon_ups_server()
+    while True:
+        try:
+            worldid = worldid_from_ups(amazon_ups_socket)
+            amazon_world_socket = amazon_world_client(amazon_ups_socket, worldid)
+            break
+        except:
+            continue
+    internal_socket = internal_connection()
+    internal_socket.listen()
+    print('Waiting for connections...')
+    while True:
+        connection, client_address = internal_socket.accept()
+        print('Connected by', client_address)
 
-    # need the below parameter part from frontend via socket
-    frontend_request = [
-        {'id': 1, 'description': 'product1', 'count': 10},
-        {'id': 2, 'description': 'product2', 'count': 5},
-    ]
-    user_id = 67890  # optional user id
-    x = 1  # Replace with the actual x coordinate
-    y = 2  # Replace with the actual y coordinate
+        while True:
+            # Check if the connection is receiving any messages
+            data = connection.recv(1024)
+            if not data:
+                print('Connection closed by', client_address)
+                break
+            frontend_request = json.loads(data.decode())
+            print(frontend_request)
+            # Process the received message here
+            warehouse_id = random.randint(1, 100) 
+            package_id = generate_package_id()
+            main_process(amazon_world_socket, amazon_ups_socket, warehouse_id, package_id, frontend_request)
 
-    main_process(warehouse_id, package_id, user_id, x, y, frontend_request)
+        connection.close()
+
+
+    # # need the below parameter part from frontend via socket
+    # frontend_request = [
+    #     {'id': 1, 'description': 'product1', 'count': 10},
+    #     {'id': 2, 'description': 'product2', 'count': 5},
+    # ]
+    # user_id = 67890  # optional user id
+    # x = 1  # Replace with the actual x coordinate
+    # y = 2  # Replace with the actual y coordinate
