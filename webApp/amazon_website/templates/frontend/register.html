@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+  <h1>Register</h1>
+  <p>Input your userID here:</p>
+
+  <form method="post" action="{% url 'register' %}">
+    {% csrf_token %}
+    <label for="user_id">User ID:</label>
+    <input type="number" name="user_id" id="user_id">
+    <button type="submit">Register</button>
+  </form>
+{% endblock %}
