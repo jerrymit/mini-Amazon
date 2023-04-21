@@ -20,10 +20,15 @@ def generate_package_id():
         current_package_id += 1
         return current_package_id
         
-def ACK(socket, responses):
+def ACK(socket, responses, type):
     ack = world_amazon_pb2.ACommands()
-    for arrived in responses.arrived:
-        ack.acks.append(arrived.seqnum)
+    if type == "arrived":
+        for arrived in responses.arrived:
+            ack.acks.append(arrived.seqnum)
+    elif type == "ready":
+        for ready in responses.ready:
+            ack.acks.append(ready.seqnum)
+
     print("purchase ACK:")
     print(ack)
     # Send ACommands message to the world server
