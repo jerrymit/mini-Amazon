@@ -25,15 +25,7 @@ def send_purchase_more(amazon_world_socket, warehouse_id, frontend_request):
         amazon_world_socket.send(encoded_msg)
 
         # Receive AResponses message from the world server
-        var_int_buff = []
-        while True:
-            buf = amazon_world_socket.recv(1)
-            var_int_buff += buf
-            msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
-            if new_pos != 0:
-                break
-
-        whole_msg = amazon_world_socket.recv(msg_len)
+        whole_msg = receive_response(amazon_world_socket)
         responses = world_amazon_pb2.AResponses()
         responses.ParseFromString(whole_msg)
 
@@ -42,15 +34,8 @@ def send_purchase_more(amazon_world_socket, warehouse_id, frontend_request):
 
         # Check for ack in AResponses message
         if seqnum in responses.acks:
-            ack = world_amazon_pb2.ACommands()
-            for arrived in responses.arrived:
-                ack.acks.append(arrived.seqnum)
-            print("purchase ACK:")
-            print(ack)
-            # Send ACommands message to the world server
-            encoded_msg = ack.SerializeToString()
-            _EncodeVarint(amazon_world_socket.send, len(encoded_msg), None)
-            amazon_world_socket.send(encoded_msg)
+            ACK(amazon_world_socket, responses)
+            # Continue receive AResponses message from the world server
             break
 
         # Wait before sending the request again
@@ -73,29 +58,24 @@ def send_APack_to_world(amazon_world_socket, warehouse_id, shipid, frontend_requ
         amazon_world_socket.send(encoded_msg)
 
         # Receive AResponses message from the world server
-        var_int_buff = []
-        while True:
-            buf = amazon_world_socket.recv(1)
-            var_int_buff += buf
-            msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
-            if new_pos != 0:
-                break
-
-        whole_msg = amazon_world_socket.recv(msg_len)
+        whole_msg = receive_response(amazon_world_socket)
         responses = world_amazon_pb2.AResponses()
         responses.ParseFromString(whole_msg)
         print("APacked Responses message:")
         print(responses)
         # Check for ack in AResponses message
         if seqnum in responses.acks:
-            # ack = world_amazon_pb2.ACommands()
-            # ack.acks.append(responses.ready.seqnum)
-            # print("APack ACK:")
-            # print(ack)
-            # # Send ACommands message to the world server
-            # encoded_msg = commands.SerializeToString()
-            # _EncodeVarint(amazon_world_socket.send, len(encoded_msg), None)
-            # amazon_world_socket.send(encoded_msg)
+            if len(responses.ready) > 0:
+                ACK(amazon_world_socket, responses)
+                break 
+            # Continue receive AResponses message from the world server
+            while True:
+                whole_msg = receive_response(amazon_world_socket)
+                responses = world_amazon_pb2.AResponses()
+                responses.ParseFromString(whole_msg)
+                if len(responses.ready) > 0:
+                    ACK(amazon_world_socket, responses)
+                    break 
             break
         # Wait before sending the request again
         time.sleep(1)

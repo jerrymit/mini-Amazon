@@ -15,8 +15,8 @@ print("Trying to connect to amazon server")
 # Try to connect to amazon server until success
 amazon_socket = None
 
-HOST = '127.0.0.1'  # The server's hostname or IP address
-PORT = 56789        # The port used by the server
+HOST = '152.3.53.130'  # The server's hostname or IP address
+PORT = 55555        # The port used by the server
 address = (HOST, PORT)
 
 
@@ -25,6 +25,16 @@ def home(request):
     warehouses = Warehouse.objects.all().order_by("warehouse_id")
     context = {"products": products, "warehouses": warehouses}
     return render(request, "frontend/home.html",context)
+
+def register(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id') # assuming 'user_id' is the name of the input field in the registration form
+        request.session['user_id'] = user_id
+        print("userID:", user_id)
+        return redirect('home')
+    else:
+        #return redirect('home')
+        return render(request, "frontend/register.html")
 
 def search_products(request):
     query = request.GET.get('search_input')
@@ -74,13 +84,15 @@ def Buy(request):
             add_to_cart(request)
             return redirect('buy')
         else:
+            user_id = request.session.get('user_id', None)
             # Get the form data from the POST request
             product_id = request.POST.get('product_id')
             quantity = request.POST.get('quantity')
-            des_x = request.POST.get('destination_x')
-            des_y = request.POST.get('destination_y')
+            destination_x = request.POST.get('destination_x')
+            destination_y = request.POST.get('destination_y')
             
             # Create a new shipment for the order
+            '''
             warehouses = Warehouse.objects.all()
             warehouse = random.choice(warehouses)
             shipment = Shipment.objects.create(
@@ -90,6 +102,7 @@ def Buy(request):
                 warehouse=warehouse,
                 #truck=truck  # assign the selected truck to the shipment
             )
+            '''
             # Create a new order for the shipment
             product = Product.objects.get(pk=product_id)
             # Check if the requested quantity is valid
@@ -99,14 +112,16 @@ def Buy(request):
                 warehouses = Warehouse.objects.all()
                 return render(request, 'frontend/buy.html', {'products': products, 'warehouses': warehouses})
             
-            order = Order.objects.create(product=product, quantity=quantity, shipment=shipment)
+            #order = Order.objects.create(product=product, quantity=quantity, shipment=shipment)
             
             # Send data over socket
             data = {
+                'destination_x': destination_x,
+                'destination_y': destination_y,
+                'user_id': user_id,
+                'product_id': product_id,
                 'description': product.description,
                 'count': quantity,
-                'des_x': des_x,
-                'des_y': des_y,
             }
             frontend_request = [data]
             while True:
@@ -122,7 +137,8 @@ def Buy(request):
                     continue
             client_socket.close()
             # Redirect to a confirmation page
-            return redirect('buy_confirmed', order_id=order.pk)
+            #return redirect('buy_confirmed', order_id=order.pk)
+            return redirect('home')
     else:
         # Render the buy form with a list of available products
         products = Product.objects.all()
@@ -130,6 +146,7 @@ def Buy(request):
         return render(request, 'frontend/buy.html', {'products': products, 'warehouses': warehouses})
     
 def Cartbuy(request):
+    user_id = request.session.get('user_id', None)
     cart = request.session.get('cart', {})
     orders = {}
     
@@ -141,6 +158,7 @@ def Cartbuy(request):
         #print(products)
         orders[key].append({'destination_x': destination_x})
         orders[key].append({'destination_y': destination_y})
+        #orders[key].append({'user_id': user_id})
         '''
         if key not in orders:
             warehouses = Warehouse.objects.all()
@@ -154,18 +172,26 @@ def Cartbuy(request):
         '''    
         for product in products:
             orders[key].append({ # add the order to the list of orders for this key
+                'product_id': product['product_id'],
                 'description': product['description'],
                 'quantity': product['quantity'],
             })
         
-        print("drders[key] value: ")
+        print("orders[key] value: ")
         print(orders[key])
         # serialize the orders data to JSON format
         orders_data = json.dumps(orders[key])
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect(address)
-        client_socket.sendall(orders_data.encode())
-        client_socket.close()
+        connected = False
+        while not connected:
+            try:
+                client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client_socket.connect(address)
+                client_socket.sendall(orders_data.encode())
+                client_socket.close()
+                connected = True
+            except:
+                print("waiting for the world to be ready")
+                
         '''
         # create the orders for this package
         shipment = Shipment.objects.get(destination_x=key.split(',')[0], destination_y=key.split(',')[1], status="ordered")
@@ -215,7 +241,8 @@ def add_to_cart(request):
     quantity = int(request.POST.get('quantity'))
     destination_x = request.POST.get('destination_x')
     destination_y = request.POST.get('destination_y')
-
+    product = Product.objects.get(description=description)
+    product_id = product.id
     # Add product to cart
     cart = request.session.get('cart', {})
     key = f"{destination_x},{destination_y}"
@@ -229,6 +256,7 @@ def add_to_cart(request):
                 break   
         if flag == 0:
             cart[key].append({
+            'product_id': product_id,
             'description': description,
             'quantity': quantity,
             'destination_x':destination_x,
@@ -236,6 +264,7 @@ def add_to_cart(request):
         })
     else:
         cart[key] = [{
+            'product_id': product_id,
             'description': description,
             'quantity': quantity,
             'destination_x':destination_x,

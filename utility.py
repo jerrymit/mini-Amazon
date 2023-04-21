@@ -19,7 +19,32 @@ def generate_package_id():
     with id_lock:
         current_package_id += 1
         return current_package_id
-    
+        
+def ACK(socket, responses):
+    ack = world_amazon_pb2.ACommands()
+    for arrived in responses.arrived:
+        ack.acks.append(arrived.seqnum)
+    print("purchase ACK:")
+    print(ack)
+    # Send ACommands message to the world server
+    encoded_msg = ack.SerializeToString()
+    _EncodeVarint(socket.send, len(encoded_msg), None)
+    socket.send(encoded_msg)
+
+def receive_response(socket):
+    # Receive AResponses message from the world server
+    var_int_buff = []
+    while True:
+        buf = socket.recv(1)
+        var_int_buff += buf
+        msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
+        if new_pos != 0:
+            break
+
+    whole_msg = socket.recv(msg_len)
+    return whole_msg
+
+
 def construct_purchase_to_world(warehouse_id, seqnum, frontend_request):
     message = world_amazon_pb2.ACommands()
     purchase_more = message.buy.add()
