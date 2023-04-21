@@ -1,6 +1,8 @@
 import random
 import socket
 import select
+from google.protobuf.internal.decoder import _DecodeVarint32
+from google.protobuf.internal.encoder import _EncodeVarint
 import invocated_files.internal_pb2 as internal_pb2
 from message_sending import *
 from utility import *
@@ -90,7 +92,7 @@ def amazon_world_client(amazon_ups_socket, worldid):
     for i in range(10):
         for j in range(10):
             init_warehouse = connect_msg.initwh.add()
-            init_warehouse.id = i * 10 + j + 1
+            init_warehouse.id = i * 10 + j
             init_warehouse.x = i * 5
             init_warehouse.y = j * 5
 
@@ -146,6 +148,8 @@ def main_process(amazon_world_socket, amazon_ups_socket, warehouse_id, package_i
 
     send_purchase_more(amazon_world_socket, warehouse_id, frontend_request)
     print("after send_purchase_more")
+    send_APack_to_world(amazon_world_socket, warehouse_id, package_id, frontend_request)
+    print("after send_APack_to_world")
     #request_truck_to_warehouse_bu(amazon_ups_socket, warehouse_id, package_id, frontend_request, x, y, user_id)
     request_truck_to_warehouse(amazon_ups_socket, warehouse_id, package_id, frontend_request)
     print("after request_truck_to_warehouse")
@@ -172,7 +176,7 @@ if __name__ == "__main__":
             continue
     internal_socket = internal_connection()
     internal_socket.listen()
-    print('Waiting for connections...')
+    print('Waiting for frontend request...')
     while True:
         connection, client_address = internal_socket.accept()
         print('Connected by', client_address)

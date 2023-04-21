@@ -3,6 +3,7 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _EncodeVarint
 import invocated_files.internal_pb2 as internal_pb2
 import invocated_files.amazon_ups_pb2 as amazon_ups_pb2
+import invocated_files.world_amazon_pb2 as world_amazon_pb2
 import json
 
 
@@ -20,20 +21,36 @@ def generate_package_id():
         return current_package_id
     
 def construct_purchase_to_world(warehouse_id, seqnum, frontend_request):
-    message = amazon_ups_pb2.AMessage()
+    message = world_amazon_pb2.ACommands()
     purchase_more = message.buy.add()
     purchase_more.whnum = warehouse_id
     purchase_more.seqnum = seqnum
 
     products_info = [(d['product_id'], d['description'], d['quantity']) for d in frontend_request if 'product_id' in d and 'description' in d and 'quantity' in d]
     for product_id, description, quantity in products_info:
-            item = purchase_more.things.add()
+            item = world_amazon_pb2.AProduct()
             item.id = product_id # Need to change this
             item.description = description
             item.count = quantity
+            purchase_more.things.append(item)
     return message
 
+def construct_APack_to_world(warehouse_id, frontend_request, shipid, seqnum):
+    message = world_amazon_pb2.ACommands()
+    pack = message.topack.add()
+    pack.whnum = warehouse_id
+    pack.shipid = shipid
+    pack.seqnum = seqnum
 
+    products_info = [(d['product_id'], d['description'], d['quantity']) for d in frontend_request if 'product_id' in d and 'description' in d and 'quantity' in d]
+    for product_id, description, quantity in products_info:
+            item = world_amazon_pb2.AProduct()
+            item.id = product_id # Need to change this
+            item.description = description
+            item.count = quantity
+            pack.things.append(item)
+    return message
+     
 def construct_ASendTruck_from_request(warehouse_id, package_id, frontend_request):
     message = amazon_ups_pb2.AMessage()
     send_truck = message.sendTruck
@@ -50,17 +67,19 @@ def construct_ASendTruck_from_request(warehouse_id, package_id, frontend_request
 
 
     # process the incoming data
+    print("in construct_ASendTruck_from_request")
     print("frontend_request: ", frontend_request)
     
     # Get destination_x and destination_y
-    send_truck.x = frontend_request[0]['destination_x']
-    send_truck.y = frontend_request[1]['destination_y']
+    send_truck.x = int(frontend_request[0]['destination_x'])
+    send_truck.y = int(frontend_request[1]['destination_y'])
 
     # Get description and quantity pairs
     product_info = [(d['description'], d['quantity']) for d in frontend_request if 'description' in d and 'quantity' in d]
     for description, quantity in product_info:
-        a_item = send_truck.items.add()
+        a_item = amazon_ups_pb2.AItem()
         a_item.description = description
-        a_item.count = quantity
+        a_item.count = int(quantity)
+        send_truck.items.append(a_item)
         print(f"Product: {description}, Quantity: {quantity}")
     return message 
