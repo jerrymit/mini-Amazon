@@ -142,7 +142,6 @@ def internal_connection():
     internal_socket.bind((host, port))
     return internal_socket
 
-
 def main_process(amazon_world_socket, amazon_ups_socket, warehouse_id, package_id, frontend_request):
     
 
