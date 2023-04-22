@@ -13,22 +13,10 @@ def send_purchase_more(amazon_world_socket, warehouse_id, frontend_request):
     seqnum = 1
 
     while True:
-        # Create ACommands message with APurchaseMore information
-        # commands = world_amazon_pb2.ACommands()
-        # purchase_more = commands.buy.add()
-        # purchase_more.whnum = warehouse_id
-        # purchase_more.seqnum = seqnum
-
-        # for product in frontend_request:
-        #     item = purchase_more.things.add()
-        #     item.id = product['id']  # Add id field
-        #     item.description = product['description']
-        #     item.count = product['count']
-
         commands = construct_purchase_to_world(warehouse_id, seqnum, frontend_request)
 
         # Print the commands message before serialization
-        print("Commands message before serialization:")
+        print("Purchase more message:")
         print(commands)
 
         # Send ACommands message to the world server
@@ -37,28 +25,71 @@ def send_purchase_more(amazon_world_socket, warehouse_id, frontend_request):
         amazon_world_socket.send(encoded_msg)
 
         # Receive AResponses message from the world server
-        var_int_buff = []
-        while True:
-            buf = amazon_world_socket.recv(1)
-            var_int_buff += buf
-            msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
-            if new_pos != 0:
-                break
-
-        whole_msg = amazon_world_socket.recv(msg_len)
+        whole_msg = receive_response(amazon_world_socket)
         responses = world_amazon_pb2.AResponses()
         responses.ParseFromString(whole_msg)
 
-        print("Responses message:")
+        print("Purchase Responses message:")
         print(responses)
 
         # Check for ack in AResponses message
         if seqnum in responses.acks:
+            if len(responses.arrived) > 0:
+                ACK(amazon_world_socket, responses, "arrived")
+                break 
+            # Continue receive AResponses message from the world server
+            while True:
+                whole_msg = receive_response(amazon_world_socket)
+                responses = world_amazon_pb2.AResponses()
+                responses.ParseFromString(whole_msg)
+                print("response: ", responses)
+                if len(responses.arrived) > 0:
+                    ACK(amazon_world_socket, responses, "arrived")
+                    break 
             break
 
         # Wait before sending the request again
         time.sleep(1)
 
+        seqnum += 1
+
+def send_APack_to_world(amazon_world_socket, warehouse_id, shipid, frontend_request):
+    seqnum = 1
+    while True:
+        commands = construct_APack_to_world(warehouse_id, frontend_request, shipid, seqnum)
+
+        # Print the commands message before serialization
+        print("APack message:")
+        print(commands)
+
+        # Send ACommands message to the world server
+        encoded_msg = commands.SerializeToString()
+        _EncodeVarint(amazon_world_socket.send, len(encoded_msg), None)
+        amazon_world_socket.send(encoded_msg)
+
+        # Receive AResponses message from the world server
+        whole_msg = receive_response(amazon_world_socket)
+        responses = world_amazon_pb2.AResponses()
+        responses.ParseFromString(whole_msg)
+        print("APacked Responses message:")
+        print(responses)
+        # Check for ack in AResponses message
+        if seqnum in responses.acks:
+            if len(responses.ready) > 0:
+                ACK(amazon_world_socket, responses, "ready")
+                break 
+            # Continue receive AResponses message from the world server
+            while True:
+                whole_msg = receive_response(amazon_world_socket)
+                responses = world_amazon_pb2.AResponses()
+                responses.ParseFromString(whole_msg)
+                print("response: ", responses)
+                if len(responses.ready) > 0:
+                    ACK(amazon_world_socket, responses, "ready")
+                    break 
+            break
+        # Wait before sending the request again
+        time.sleep(1)
         seqnum += 1
 
 def request_truck_to_warehouse_bu(amazon_ups_socket, warehouse_id, package_id, items, x, y, user_id):
