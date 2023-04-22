@@ -4,8 +4,6 @@ from django.contrib import messages
 from django.http import JsonResponse
 from random import choice
 from .models import *
-from google.protobuf.internal.decoder import _DecodeVarint32
-from google.protobuf.internal.encoder import _EncodeVarint
 import socket, json, time
 #import protobuf_pb2
 
@@ -20,8 +18,46 @@ PORT = 55555        # The port used by the server
 address = (HOST, PORT)
 
 
+commodities = [
+    ('apple', 20),
+    ('book', 20),
+    ('cat', 15),
+    ('dog', 10),
+    ('banana', 30),
+    ('cloth', 30),
+    ('shoes', 50),
+    ('kimchi', 100),
+    ('TV', 40),
+    ('coach', 30),
+    ('ball', 25),
+    ('beef noodle', 10),
+]
+
+for description, count in commodities:
+    obj, created = Commodity.objects.get_or_create(description=description, defaults={'count': count})
+    
+products = [
+    ('apple'),
+    ('book'),
+    ('cat'),
+    ('dog'),
+    ('banana'),
+    ('cloth'),
+    ('shoes'),
+    ('kimchi'),
+    ('TV'),
+    ('coach'),
+    ('ball'),
+    ('beef noodle'),
+]
+
+for description in products:
+    obj, created = Product.objects.get_or_create(description=description)
+
+
+
 def home(request):
-    products = Product.objects.all().order_by("id")
+    products = Commodity.objects.all().order_by("id")
     warehouses = Warehouse.objects.all().order_by("warehouse_id")
     context = {"products": products, "warehouses": warehouses}
     return render(request, "frontend/home.html",context)
@@ -39,9 +75,9 @@ def register(request):
 def search_products(request):
     query = request.GET.get('search_input')
     if query:
-        products = Product.objects.filter(description__icontains=query)
+        products = Commodity.objects.filter(description__icontains=query)
     else:
-        products = Product.objects.all()
+        products = Commodity.objects.all()
     return render(request, "frontend/search.html", {'products': products, 'query': query})
 
 
@@ -78,6 +114,10 @@ def view_cart(request):
     cart_items = Cart.objects.all()
     return render(request, 'frontend/cart.html', {'cart_items': cart_items})
 
+def clear_cart(request):
+    request.session['cart'] = {}
+    return render(request, 'frontend/clear_cart.html')
+
 def Buy(request):
     if request.method == 'POST':
         if 'add_to_cart' in request.POST:
@@ -104,11 +144,11 @@ def Buy(request):
             )
             '''
             # Create a new order for the shipment
-            product = Product.objects.get(pk=product_id)
+            product = Commodity.objects.get(pk=product_id)
             # Check if the requested quantity is valid
             if int(quantity) <= 0 or int(quantity) > product.count:
                 messages.error(request, 'Invalid quantity.')
-                products = Product.objects.all()
+                products = Commodity.objects.all()
                 warehouses = Warehouse.objects.all()
                 return render(request, 'frontend/buy.html', {'products': products, 'warehouses': warehouses})
             
@@ -141,7 +181,7 @@ def Buy(request):
             return redirect('home')
     else:
         # Render the buy form with a list of available products
-        products = Product.objects.all()
+        products = Commodity.objects.all()
         warehouses = Warehouse.objects.all()
         return render(request, 'frontend/buy.html', {'products': products, 'warehouses': warehouses})
     
@@ -241,9 +281,20 @@ def add_to_cart(request):
     quantity = int(request.POST.get('quantity'))
     destination_x = request.POST.get('destination_x')
     destination_y = request.POST.get('destination_y')
-    product = Product.objects.get(description=description)
-    product_id = product.id
+    product = Commodity.objects.get(description=description)
+    
+    # Get the product from the database
+    available_quantity = int(product.count)
+    
+    # Check if the requested quantity is available
+    if quantity < 0 or quantity > available_quantity:
+        # Show an error message to the user
+        error_message = request.session.get('error_message', None)
+        error_message = f"Only {available_quantity} units of {description} are available"
+        print("ERROR MESSAGE1: ", error_message)
+        return render(request, 'frontend/buy.html', {'error_message': error_message})
     # Add product to cart
+    product_id = product.id
     cart = request.session.get('cart', {})
     key = f"{destination_x},{destination_y}"
     if key in cart:
@@ -251,6 +302,12 @@ def add_to_cart(request):
         for item in cart[key]:
             print("item: ", item)
             if item['description'] == description:
+                total = item['quantity'] + quantity
+                if total > available_quantity:
+                    # Show an error message to the user
+                    error_message = f"Only {total - item['quantity']} units of {description} are available"
+                    print("ERROR MESSAGE2: ", error_message)
+                    return render(request, 'frontend/buy.html', {'error_message': error_message})
                 item['quantity'] += quantity
                 flag = 1
                 break   
@@ -270,7 +327,7 @@ def add_to_cart(request):
             'destination_x':destination_x,
             'destination_y':destination_y,
         }]
-    
+
     request.session['cart'] = cart
     #request.session.clear()
 
@@ -337,6 +394,7 @@ def Buy(request):
         return JsonResponse({'success': 'Products purchased and added to warehouse inventory.'})
     else:
         return JsonResponse({'error': 'Invalid request method.'})
+'''
 '''    
 def pack_shipment(request):
     if request.method == 'POST':
@@ -428,7 +486,8 @@ def load_shipment(request):
         return JsonResponse({'success': 'Shipment loaded onto the truck.', 'shipment_id': shipment.shipment_id})
     else:
         return JsonResponse({'error': 'Invalid request method.'})
-
+'''
+'''
 def query_package_status(request):
     if request.method == 'GET':
         package_id = int(request.GET['package_id'])
@@ -445,3 +504,4 @@ def query_package_status(request):
         return JsonResponse({'package_id': package.package_id, 'status': status})
     else:
         return JsonResponse({'error': 'Invalid request method.'})
+'''

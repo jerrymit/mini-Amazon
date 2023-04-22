@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <p>Your cart is empty.</p>
+  <form method="get" action="{% url 'home' %}">
+    <button type="submit">Back to home</button>
+  </form>
+{% endblock %}

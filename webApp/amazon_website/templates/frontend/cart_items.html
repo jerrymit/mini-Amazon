@@ -26,7 +26,19 @@
     {% csrf_token %}
     <button type="submit">Buy All</button>
   </form>
+  <form method="get" action="{% url 'clear_cart' %}">
+    <button type="submit">Clear cart</button>
+  </form>
+  <form method="get" action="{% url 'buy' %}">
+    <button type="submit">Back to buy</button>
+  </form>
+  <form method="get" action="{% url 'home' %}">
+    <button type="submit">Back to home</button>
+  </form>
 {% else %}
   <p>Your cart is empty.</p>
+  <form method="get" action="{% url 'home' %}">
+    <button type="submit">Back to home</button>
+  </form>
 {% endif %}
 {% endblock %}
