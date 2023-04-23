@@ -20,11 +20,17 @@ def receive(socket):
     whole_msg = socket.recv(msg_len)
     return whole_msg
 
-
 def receive_AResponse(socket):
     # Receive AResponses message from the world server
     whole_msg = whole_msg = receive(socket)
     responses = world_amazon_pb2.AResponses()
+    responses.ParseFromString(whole_msg)
+    return responses
+
+def receive_AConnected(socket):
+    # Receive AResponses message from the world server
+    whole_msg = whole_msg = receive(socket)
+    responses = world_amazon_pb2.AConnected()
     responses.ParseFromString(whole_msg)
     return responses
 
