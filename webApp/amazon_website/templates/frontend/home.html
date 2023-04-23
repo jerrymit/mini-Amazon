@@ -13,14 +13,12 @@
   <p>
     <button onclick="window.location.href='{% url 'buy' %}'">Buy Now</button>
   </p>
-  <form method="get" action="/add_product">
-    <button type="submit">Add product</button>
-  </form>
-  <form method="get" action="/add_warehouse">
-    <button type="submit">Add warehouse</button>
+  <form method="get" action="{% url 'Search_product' %}">
+    <button type="submit">Search product status</button>
   </form>
   <form method="get" action="{% url 'register' %}">
-    <button type="submit">Back to register</button>
+    <button type="submit">Back to userID</button>
   </form>
+  
 
 {% endblock %}
