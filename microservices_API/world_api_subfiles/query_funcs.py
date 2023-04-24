@@ -9,25 +9,16 @@ engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
 
 def getOrdersWithPackageid(package_id):
-    print("getOrdersWithPackageid\n")
     session = Session()
 
     # query all orders with package_id = 1
     orders = session.query(Order).filter(Order.package_id == package_id).all()
 
     # print the description of the products in the orders
-    for order in orders:
-        print("product id: ", order.product.product_id)
-        print("quantity: ", order.quantity)
-        print("warehouse_id: ", order.warehouse_id)
-        print("package_id: ", order.package_id)
-        
-    print("====================================")
     session.close()
     return orders
 
 def getOpenRequest():
-    print("Checking for open reqeuest")
     session = Session()
     open_requests = session.query(Request).filter_by(status='open').all()
     # Print the results
@@ -38,25 +29,14 @@ def getOpenRequest():
     return open_requests
 
 def getProductWithProductid(product_id):
-    print("get_Product\n")
     session = Session()
     product = session.query(Product).filter_by(product_id=product_id).first()
-    print("Product id: ", product.product_id)
-    print("Description: ", product.description)
-    print("====================================")
     session.close()
     return product
 
 def get_Package(package_id):
-    print("get_Package\n")
     session = Session()
     package = session.query(Package).filter_by(package_id=package_id).first()
-    print("Package id: ", package.package_id)
-    print("Destination x: ", package.destination_x)
-    print("Destination y: ", package.destination_y)
-    print("User id: ", package.user_id)
-    print("====================================")
-   
     session.close()
     return package
 
@@ -81,8 +61,6 @@ def get_request_with_ack(request_id):
     session = Session()
     request = session.query(Request).filter_by(request_id=request_id).first()
     session.close()
-    print("request_id: ", request.request_id)
-    print("type: ", request.type)
     return request
 
 def add_open_request(package_id, type):

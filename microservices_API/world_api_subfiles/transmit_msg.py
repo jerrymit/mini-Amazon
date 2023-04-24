@@ -42,14 +42,17 @@ def receive_UtoAzConnect(socket):
     responses.ParseFromString(whole_msg)
     return responses
 
-def ack_mechanics(acksList, world_socket):
+def ack_mechanics(acksList, seqnumList, world_socket):
     # get a list of acks from the AResponse
     for ack in acksList:
         print("Ack id ")
         print(ack)
-        update_request_status_to_ack(ack) 
+        try:
+            update_request_status_to_ack(ack) 
+        except:
+            print("Some Ack error")
     # create ACommands_ACK to send to world server
-    ACommands_ACK = construct_ACK(acksList)
+    ACommands_ACK = construct_ACK(seqnumList)
     print("sending ACK to world server", ACommands_ACK)
     send_command(ACommands_ACK, world_socket)
    
