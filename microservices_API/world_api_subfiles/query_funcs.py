@@ -105,6 +105,14 @@ def update_package_status(package_id, status):
     session.commit()
     session.close()
 
+def init_warehouse(x, y):
+    session = Session()
+    new_warehouse = Warehouse(x=x, y=y)
+    session.add(new_warehouse)
+    session.commit()
+    session.close()
+    
+
 
 if __name__ == "__main__":
     # update_request_status_to_ack(1)
