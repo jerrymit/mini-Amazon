@@ -5,6 +5,8 @@
 {% block content %}
   <h1>Order Confirmation</h1>
   <p>Your order has been placed successfully!</p>
+  
+
   <form method="get" action="{% url 'order_status' %}">
     <button type="submit">See order status</button>
   </form>
