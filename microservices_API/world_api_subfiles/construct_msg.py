@@ -41,10 +41,10 @@ def construct_APack(whnum, things, packageid, seqnum):
     pack.seqnum = seqnum
     return pack
     
-def construct_APutOnTruck(whnum, things, packageid, seqnum):
+def construct_APutOnTruck(whnum, truckid, packageid, seqnum):
     put_on_truck = world_amazon_pb2.APutOnTruck()
     put_on_truck.whnum = whnum
-    put_on_truck.things.extend(things)
+    put_on_truck.truckid = truckid
     put_on_truck.shipid = packageid
     put_on_truck.seqnum = seqnum
     return put_on_truck

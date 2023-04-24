@@ -67,9 +67,11 @@ def proceed_after_ACK(acksList, world_socket):
     for ack in acksList:
         request = get_request_with_ack(ack)
         if request.type == "purchase":
-            add_open_pack_request(request)
+            add_open_request(request, "pack")
+            package_id = request.pk_id
         elif request.type == "pack":
             package_id = request.pk_id
+            update_package_status(package_id, "packed")
             package = get_Package(package_id)
             warehouse_id = 0
             user_id = package.user_id
@@ -91,6 +93,7 @@ def proceed_after_ACK(acksList, world_socket):
             send_command(Amessage, world_socket)
         elif request.type == "load":
             package_id = request.pk_id
+            update_package_status(package_id, "loaded to truck")
             package = get_Package(package_id)
             truck_id = package.truck_id
             warehouse_id = 0

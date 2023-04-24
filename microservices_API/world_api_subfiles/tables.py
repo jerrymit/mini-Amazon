@@ -27,7 +27,7 @@ class Package(Base):
     destination_x = Column(Integer)
     destination_y = Column(Integer)
     user_id = Column(Integer, nullable=True)
-    status = Column(Text, default='purchase')
+    status = Column(Text, default='ordered')
 '''
 class Order(Base):
     __tablename__ = 'amazon_order'
