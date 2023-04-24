@@ -80,6 +80,7 @@ def initialize_world():
 def inform_ui():
     retry_count = 0
     max_retries = 10
+    connected = False
     internal_ui = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while not connected and retry_count < max_retries:
         time.sleep(2)

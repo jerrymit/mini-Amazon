@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from tables import *
-#from query_func import *
+from query_func import *
 import random, socket, json
 
 db_url = "postgresql://postgres:amazon@127.0.0.1:5432/amazon3"
@@ -35,6 +35,7 @@ def internal_connection():
     internal_socket.bind((host, port))
     return internal_socket
 
+'''
 def add_commodity():
     session = Session()
 
@@ -144,7 +145,7 @@ def change_status(sequence_number, new_type, new_status):
     request.status = new_status
     session.commit()
     session.close()
-
+'''
 
 if __name__ == "__main__":
     Base.metadata.drop_all(engine)
