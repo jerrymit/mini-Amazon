@@ -172,7 +172,9 @@ def Cartbuy(request):
     # clear the cart and redirect to the confirmation page
     for key, items in cart.items():
         cart[key] = [item for item in items if item['user_id'] != user_id]
+    
     #request.session['cart'] = {}
+    #return render(request, 'home', {'purchase_fail': purchase_fail[key]})
     return redirect('home')
 
 def add_to_cart(request):
