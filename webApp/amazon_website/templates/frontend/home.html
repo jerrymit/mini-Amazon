@@ -13,16 +13,8 @@
   <p>
     <button onclick="window.location.href='{% url 'buy' %}'">Buy Now</button>
   </p>
-<<<<<<< HEAD
   <form method="get" action="{% url 'order_status' %}">
     <button type="submit">Check order status</button>
-=======
-  <form method="get" action="/add_product">
-    <button type="submit">Add product</button>
-  </form>
-  <form method="get" action="/add_warehouse">
-    <button type="submit">Add warehouse</button>
->>>>>>> master
   </form>
   <p>Here is a list of all products:</p>
   <ul>
@@ -31,11 +23,8 @@
       {% endfor %}
   </ul>
   <form method="get" action="{% url 'register' %}">
-<<<<<<< HEAD
     <button type="submit">Back to userID page</button>
-=======
-    <button type="submit">Back to register</button>
->>>>>>> master
   </form>
+  
 
 {% endblock %}
