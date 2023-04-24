@@ -84,9 +84,9 @@ def get_request_with_ack(request_id):
     print("type: ", request.type)
     return request
 
-def add_open_pack_request(package_id):
+def add_open_request(package_id, type):
     session = Session()
-    new_request = Request(type="pack", status="open", pk_id=package_id)
+    new_request = Request(type=type, status="open", pk_id=package_id)
     session.add(new_request)
     session.commit()
     session.close()
@@ -95,6 +95,13 @@ def delete_request(request_id):
     session = Session()
     request = session.query(Request).filter_by(request_id=request_id).first()
     session.delete(request)
+    session.commit()
+    session.close()
+
+def update_package_status(package_id, status):
+    session = Session()
+    package = session.query(Package).filter_by(package_id=package_id).first()
+    package.status = status
     session.commit()
     session.close()
 

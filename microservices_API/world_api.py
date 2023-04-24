@@ -118,14 +118,34 @@ if __name__ == '__main__':
                     count = order.quantity
                     Aproduct = construct_AProcuct(product_id, description, count)
                     products.append(Aproduct)
-
                     whnum = order.warehouse_id
                 purchase_more = construct_APurchaseMore(whnum, products, seqnum)
                 buy.append(purchase_more)
             elif(request.type == "pack"):
-                pass
+                seqnum = request.request_id
+                package_id = request.pk_id
+                orders = getOrdersWithPackageid(package_id)
+                whnum = 0
+                products = []
+                for order in orders:
+                    product = getProductWithProductid(order.product_id)
+                    product_id = product.product_id
+                    description = product.description
+                    count = order.quantity
+                    Aproduct = construct_AProcuct(product_id, description, count)
+                    products.append(Aproduct)
+                pack = construct_APack(whnum, products, package_id, seqnum)
+                topack.append(pack)
             elif(request.type == "load"):
-                pass
+                seqnum = request.request_id
+                package_id = request.pk_id
+                truck_id = request.truck_id
+                orders = getOrdersWithPackageid(package_id)
+                whnum = 0
+                for order in orders:
+                    whnum = order.warehouse_id
+                APutOnTruck = construct_APutOnTruck(truck_id, whnum, package_id, seqnum)
+                load.append(APutOnTruck)
 
         # only construct and send ACommands if there exist buy, topack, load, queries, or acks
         if buy or topack or load or queries or acks:

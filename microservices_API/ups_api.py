@@ -3,6 +3,7 @@ import socket
 import threading
 import time 
 from ups_api_subfiles.transmit_msg import *
+from ups_api_subfiles.database_funcs import *
 
 
 AMAZON_HOST = socket.gethostname()
@@ -14,11 +15,20 @@ def handle_connection(conn, addr):
     umsg = receive_UMessage(conn)
     # Check the type of the incoming message and process it accordingly
     if umsg.HasField("truckAtWH"):
-        print("Received UTruckAtWH message:", umsg.truckAtWH)
+        print("Received UTruckAtWH message:")
         # Process the UTruckAtWH message here
+        package_id = umsg.truckAtWH.package_id
+        truck_id = umsg.truckAtWH.truck_id
+        # package table update
+        give_package_truckid(package_id, truck_id)
+        # add a open load request to request table
+        add_open_request(package_id, "load")
+        
     elif umsg.HasField("packageDelivered"):
-        print("Received UPackageDelivered message:", umsg.packageDelivered)
+        print("Received UPackageDelivered message:")
         # Process the UPackageDelivered message here
+        package_id = umsg.packageDelivered.package_id
+        update_package_status(package_id, "delivered")
     conn.close()
 
 
