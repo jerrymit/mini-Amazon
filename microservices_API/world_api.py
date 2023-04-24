@@ -2,7 +2,7 @@
 import socket
 import time
 from world_api_subfiles.construct_msg import *
-from world_api_subfiles.query_functions import *
+from microservices_API.world_api_subfiles.query_funcs import *
 from world_api_subfiles.transmit_msg import *
 
 # set the IP address and port number of the world server
@@ -16,10 +16,10 @@ AMAZON_UPS_PORT = 54321 # UPS server port
 
 
 # To UPS Socket
-amazon_ups_as_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 while True:
     try:
-        amazon_ups_as_client.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
+        ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
         break
     except:
         print("UPS server not ready yet")
@@ -27,8 +27,8 @@ while True:
 
 
 # To World Socket
-amazon_world_as_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-amazon_world_as_client.connect((WORLD_HOST, WORLD_PORT))
+world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+world_socket.connect((WORLD_HOST, WORLD_PORT))
 
 # # Internal UI Socket
 # internal_ui = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -53,9 +53,6 @@ def getWorldId():
     print("world id received: ", worldid)
     return worldid
 
-
-
-
 def initialize_world():
     worldid = getWorldId()
     # add 100 AInitWarehouse messages to the AConnect message
@@ -67,16 +64,16 @@ def initialize_world():
             init_warehouse_list.append(wh)
 
     connect_msg = construct_AConnect(worldid, init_warehouse_list, True)
-    send_command(connect_msg, amazon_world_as_client)
-    world_connect_response = receive_AConnected(amazon_world_as_client)
+    send_command(connect_msg, world_socket)
+    world_connect_response = receive_AConnected(world_socket)
     if(world_connect_response.result == "connected!"):
         print("Connection to world server successful!")
         conneted_msg = construct_AzConnected(world_connect_response.worldid, "success")
-        send_command(conneted_msg, amazon_ups_as_client)
+        send_command(conneted_msg, ups_socket)
     else:
         print("Connection to world server failed.")
         conneted_msg = construct_AzConnected(world_connect_response.worldid, "failed")
-        send_command(conneted_msg, amazon_ups_as_client)
+        send_command(conneted_msg, ups_socket)
         raise ConnectionError("Failed to connect to world server")
 
 def inform_ui():
@@ -85,31 +82,66 @@ def inform_ui():
     while not connected and retry_count < max_retries:
         time.sleep(2)
         try:
-            amazon_ups_as_client.connect((ip, port))
+            ups_socket.connect((ip, port))
             print("Conneted to internal UI API")
             connected = True
         except:
             retry_count += 1
             print("Connection to internal UI failed. Retrying...")
-    amazon_ups_as_client.send("world is ready")
+    ups_socket.send("world is ready")
 
 if __name__ == '__main__':
     initialize_world()
     # inform_ui()
 
     while True:
-        # create ACommand
-        commands = world_amazon_pb2.ACommands()
-            # need database query here to contine
+        # get open requests from the DB
+        requests = getOpenRequest()
+        buy = []
+        topack = []
+        load = [] 
+        queries =[] 
+        #simspeed = None 
+        #disconnect = None 
+        acks = None
+        for request in requests:
+            if(request.type == "purchase"):
+                seqnum = request.request_id
+                package_id = request.pk_id
+                orders = getOrdersWithPackageid(package_id)
+                whnum = 0
+                products = []
+                for order in orders:
+                    product = getProductWithProductid(order.product_id)
+                    product_id = product.product_id
+                    description = product.description
+                    count = order.quantity
+                    Aproduct = construct_AProcuct(product_id, description, count)
+                    products.append(Aproduct)
 
-        # send Acommand to world server
-        send_command(commands, amazon_world_as_client)
-        # receive AResponse from world server
-        AResponse = receive_AResponse(amazon_world_as_client)
-        # ACK to world server
-        ACommands_ACK = construct_ACK(AResponse)
-        send_command(ACommands_ACK, amazon_world_as_client)
+                    whnum = order.warehouse_id
+                purchase_more = construct_APurchaseMore(whnum, products, seqnum)
+                buy.append(purchase_more)
+            elif(request.type == "pack"):
+                pass
+            elif(request.type == "load"):
+                pass
+
+        # only construct and send ACommands if there exist buy, topack, load, queries, or acks
+        if buy or topack or load or queries or acks:
+            commands = construct_ACommands(buy, topack, load, queries, acks)
+            print("sending commands to world server", commands)
+            # send Acommand to world server
+            send_command(commands, world_socket)
         
+        # receive AResponse from world server
+        AResponse = receive_AResponse(world_socket)
+        if len(AResponse.acks) > 0:
+            acksList = construct_acksList_from_response(AResponse)
+            # update the database to ACK and send acks to UPS server
+            ack_mechanics(acksList, world_socket)
+            proceed_after_ACK(acksList, world_socket)
+            
         # DB query
         # for each ACK, get the query result which has the same seqnum as ACK
             # change the status from OPEN to ACK
@@ -124,4 +156,3 @@ if __name__ == '__main__':
             # if type == LOAD 
                 # with package_id, get truck_id and warehouse_id
                 # Create and send AMessage with ATruckLoaded type to UPS server
-        pass
