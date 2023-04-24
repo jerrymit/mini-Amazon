@@ -45,6 +45,8 @@ def receive_UtoAzConnect(socket):
 def ack_mechanics(acksList, world_socket):
     # get a list of acks from the AResponse
     for ack in acksList:
+        print("Ack id ")
+        print(ack)
         update_request_status_to_ack(ack) 
     # create ACommands_ACK to send to world server
     ACommands_ACK = construct_ACK(acksList)
@@ -67,8 +69,8 @@ def proceed_after_ACK(acksList, world_socket):
     for ack in acksList:
         request = get_request_with_ack(ack)
         if request.type == "purchase":
-            add_open_request(request, "pack")
             package_id = request.pk_id
+            add_open_request(package_id, "pack")
         elif request.type == "pack":
             package_id = request.pk_id
             update_package_status(package_id, "packed")
@@ -86,10 +88,8 @@ def proceed_after_ACK(acksList, world_socket):
                 item = construct_AItem(description, count)
                 items.append(item)
                 warehouse_id = order.warehouse_id
-            ATruck = construct_ASendTruck(package_id, warehouse_id, user_id, x, y, items)
-            # create and send AMessage with ASendTruck type to UPS server
-            Amessage = amazon_ups_pb2.AMessage()
-            Amessage.sendTruck.extend(ATruck)
+            Amessage = construct_ASendTruck(package_id, warehouse_id, user_id, x, y, items)
+           
             send_command(Amessage, world_socket)
         elif request.type == "load":
             package_id = request.pk_id
@@ -100,10 +100,8 @@ def proceed_after_ACK(acksList, world_socket):
             orders = getOrdersWithPackageid(package_id)
             for order in orders:
                 warehouse_id = order.warehouse_id
-            ATruckLoaded = construct_ATruckLoaded(truck_id, warehouse_id, package_id)
-            # create and send AMessage with ATruckLoaded type to UPS server
-            Amessage = amazon_ups_pb2.AMessage()
-            Amessage.truckLoaded.extend(ATruckLoaded)
+            Amessage = construct_ATruckLoaded(truck_id, warehouse_id, package_id)
+            
             send_command(Amessage, world_socket)
 
     # DB query
