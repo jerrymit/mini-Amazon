@@ -60,8 +60,9 @@ def initialize_world():
     init_warehouse_list = []
     for i in range(10):
         for j in range(10):
-            wh = construct_AInitWarehouse(i * 10 + j, i * 5, j * 5)
+            wh = construct_AInitWarehouse(i * 10 + j +1, i * 5, j * 5)
             init_warehouse_list.append(wh)
+            init_warehouse(i * 5, j * 5)
 
     connect_msg = construct_AConnect(worldid, init_warehouse_list, True)
     send_command(connect_msg, world_socket)
