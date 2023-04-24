@@ -28,6 +28,7 @@ class Package(Base):
     destination_y = Column(Integer)
     user_id = Column(Integer, nullable=True)
     status = Column(Text, default='purchase')
+    truck_id = Column(Integer, nullable=True)
 '''
 class Order(Base):
     __tablename__ = 'amazon_order'
@@ -53,7 +54,7 @@ class Request(Base):
     __tablename__ = 'amazon_request'
     request_id = Column(Integer, primary_key=True)
     type = Column(Text, default='purchase')
-    status = Column(Text, default='Open')
+    status = Column(Text, default='open')
     pk_id = Column(Integer, ForeignKey('amazon_package.package_id'))
     package = relationship('Package')
 
