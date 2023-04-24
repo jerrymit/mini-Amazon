@@ -27,7 +27,7 @@ class Package(models.Model):
     destination_y = models.IntegerField()
     user_id = models.IntegerField(null=True)
     status = models.TextField(default="purchase")
-    truck_id = models.IntegerField(null=True)
+    truck_id = models.IntegerField(null=True, default=0)
     
 class Order(models.Model):
     order_id = models.AutoField(primary_key = True)
