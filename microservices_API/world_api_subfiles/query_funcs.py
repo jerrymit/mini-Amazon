@@ -28,7 +28,7 @@ def getOrdersWithPackageid(package_id):
 
 def getOpenRequest():
     session = Session()
-    open_requests = session.query(Request).filter_by(status='Open').all()
+    open_requests = session.query(Request).filter_by(status='open').all()
     # Print the results
     for request in open_requests:
         print(request.request_id, request.type, request.status, request.package.package_id)

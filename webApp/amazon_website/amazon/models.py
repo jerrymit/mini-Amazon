@@ -39,7 +39,7 @@ class Order(models.Model):
 class Request(models.Model):
     request_id = models.AutoField(primary_key = True)
     type = models.TextField(default="purchase")
-    status = models.TextField(default="Open")
+    status = models.TextField(default="open")
     pk_id = models.ForeignKey(Package, on_delete = models.CASCADE)
     
 
