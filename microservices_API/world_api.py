@@ -6,7 +6,7 @@ from world_api_subfiles.query_funcs import *
 from world_api_subfiles.transmit_msg import *
 
 LOCAL_HOST = '152.3.53.130'
-EXTERNAL_HOST = '172.28.216.179'
+EXTERNAL_HOST = '172.28.184.254'
 
 # set the IP address and port number of the world server
 WORLD_HOST = LOCAL_HOST  # replace with the actual IP address of the world server
@@ -21,9 +21,15 @@ AMAZON_UPS_PORT = 54321 # UPS server port
 UI_HOST = LOCAL_HOST 
 UI_PORT = 7777
 #internal_ui.connect((ip, port))
+ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
+
+# Internal World Socket
+INTERNAL_WORLD_SERVICE_HOST = '152.3.53.130' 
+INTERNAL_WORLD_SERVICE_PORT = 9487
 
 
-# # To UPS Socket
+# To UPS Socket
 # ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # while True:
 #     try:
@@ -34,17 +40,22 @@ UI_PORT = 7777
 #         time.sleep(1)
 
 
-# # To World Socket
+# To World Socket
 # world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # world_socket.connect((WORLD_HOST, WORLD_PORT))
 
+ # while True:
+    #     try:
+    #         ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
+    #         break
+    #     except:
+    #         print("UPS server not ready yet")
+    #         time.sleep(1)
 
 def getWorldId():
     # Internal UPS Socket
     internal_ups = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # set the IP address and port number of the world server
-    INTERNAL_WORLD_SERVICE_HOST = '127.0.0.1' 
-    INTERNAL_WORLD_SERVICE_PORT = 9487
     internal_ups.bind((INTERNAL_WORLD_SERVICE_HOST, INTERNAL_WORLD_SERVICE_PORT))
     internal_ups.listen(5)
     print("waiting for world id...")
@@ -55,6 +66,14 @@ def getWorldId():
 
 def initialize_world():
     worldid = getWorldId()
+    world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while True:
+        try:
+            world_socket.connect((WORLD_HOST, WORLD_PORT))
+            break
+        except:
+            print("World server not ready yet")
+            time.sleep(1)
     # add 100 AInitWarehouse messages to the AConnect message
     ###### DB
     init_warehouse_list = []
@@ -62,7 +81,7 @@ def initialize_world():
         for j in range(10):
             wh = construct_AInitWarehouse(i * 10 + j +1, i * 5, j * 5)
             init_warehouse_list.append(wh)
-            init_warehouse(i * 5, j * 5)
+            #init_warehouse(i * 5, j * 5)
 
     connect_msg = construct_AConnect(worldid, init_warehouse_list, True)
     send_command(connect_msg, world_socket)
@@ -78,22 +97,19 @@ def initialize_world():
         raise ConnectionError("Failed to connect to world server")
 
 def inform_ui():
-    retry_count = 0
-    max_retries = 10
     internal_ui = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    while not connected and retry_count < max_retries:
+    while True:
         time.sleep(2)
         try:
             internal_ui.connect((UI_HOST, UI_PORT))
             print("Conneted to internal UI API")
-            connected = True
+            break
         except:
-            retry_count += 1
             print("Connection to internal UI failed. Retrying...")
     internal_ui.send("world is ready")
 
 if __name__ == '__main__':
-    #initialize_world()
+    initialize_world()
     inform_ui()
 
     # while True:
