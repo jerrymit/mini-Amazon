@@ -5,9 +5,14 @@ import time
 from ups_api_subfiles.transmit_msg import *
 from ups_api_subfiles.database_funcs import *
 
+LOCAL_HOST = '152.3.53.130'
+EXTERNAL_HOST = '172.28.216.179'
 
-AMAZON_HOST = socket.gethostname()
-AMAZON_PORT = 6543 
+AMAZON_HOST = LOCAL_HOST
+AMAZON_PORT = 6543 # Amazon to UPS
+
+WORLD_SERVICE_HOST = LOCAL_HOST
+WORLD_SERVICE_PORT = 9487 # Internal Port 
 
 # Define a function to handle incoming connections and messages
 def handle_connection(conn, addr):
@@ -34,8 +39,6 @@ def handle_connection(conn, addr):
 
 def sendWorldIdtoWorldService(worldid):
     internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    WORLD_SERVICE_HOST = "0.0.0.0"
-    WORLD_SERVICE_PORT = 9487 # Internal Port 
     internal_socket.connect((WORLD_SERVICE_HOST, WORLD_SERVICE_PORT))
     internal_socket.send(worldid)
 
@@ -62,4 +65,3 @@ if __name__ == '__main__':
         t = threading.Thread(target=handle_connection, args=(conn, addr))
         # Start the new thread
         t.start()
-
