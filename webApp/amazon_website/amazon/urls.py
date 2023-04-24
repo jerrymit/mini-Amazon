@@ -13,10 +13,11 @@ urlpatterns = [
     #path('add_warehouse', views.add_warehouse, name='add_warehouse'),
     path('cart', views.cart_items, name='cart'),
     path('cart/clear/', views.clear_cart, name='clear_cart'),
-    path('buy_confirmed/<int:order_id>', views.buy_confirm, name='buy_confirmed'),
+    #path('buy_confirmed', views.buy_confirm, name='buy_confirmed'),
     path('Cartbuy', views.Cartbuy, name='Cartbuy'),
     path('Search_product', views.status_search, name='Search_product'),
-    path('Order_Status', views.package_detail, name='Order_Status'),
+    #path('Order_Status', views.package_detail, name='Order_Status'),
+    path('order_status', views.order_status, name='order_status'),
     #path('Product_status', views.package_status, name='Product_status'),
     
     #path('home/search_results/order', views.assign_order, name='order'),

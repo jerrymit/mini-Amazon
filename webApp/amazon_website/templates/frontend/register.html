@@ -9,7 +9,7 @@
   <form method="post" action="{% url 'register' %}">
     {% csrf_token %}
     <label for="user_id">User ID:</label>
-    <input type="number" name="user_id" id="user_id" placeholder="Optional">
+    <input type="number" name="user_id" id="user_id" placeholder="Required" required>
     <button type="submit">Submit</button>
   </form>
 {% endblock %}

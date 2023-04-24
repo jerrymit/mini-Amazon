@@ -18,7 +18,36 @@
             <li>No products found.</li>
         {% endfor %}
         </ul>
+        <h1>Buy a Product</h1>
+        <form method="post" action="{% url 'buy' %}">
+        {% csrf_token %}
+        <label for="description">Product:</label>
+        <select name="description">
+          {% for product in products %}
+            <option value="{{ product.description }}">{{ product.description }}</option>
+          {% endfor %}
+        </select><br>
+        <label for="quantity">Quantity:</label>
+        <input type="number" name="quantity" min="1"><br>
+        <label for="destination_x">Destination X:</label>
+        <input type="number" name="destination_x"><br>
+        <label for="destination_y">Destination Y:</label>
+        <input type="number" name="destination_y"><br>
+        <button type="submit" name="add_to_cart">Add to Cart</button>
+        <button type="submit" name="buy">Buy</button>
+        </form>
+    
     {% else %}
-        <p>Please enter a search term.</p>
+        <p>Please enter the correct product name.</p>
     {% endif %}
+    <form method="get" action="{% url 'cart' %}">
+        {% csrf_token %}
+        <button type="submit">View Cart</button>
+    </form>
+    <form method="get" action="{% url 'buy' %}">
+        <button type="submit">Back to buy</button>
+    </form>
+    <form method="get" action="{% url 'home' %}">
+        <button type="submit">Back to home</button>
+    </form>
 {% endblock %}

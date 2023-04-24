@@ -13,11 +13,17 @@
   <p>
     <button onclick="window.location.href='{% url 'buy' %}'">Buy Now</button>
   </p>
-  <form method="get" action="{% url 'Search_product' %}">
-    <button type="submit">Search product status</button>
+  <form method="get" action="{% url 'order_status' %}">
+    <button type="submit">Check order status</button>
   </form>
+  <p>Here is a list of all products:</p>
+  <ul>
+      {% for product in products %}
+        <li>{{ product.description }} - {{ product.count }}</li>
+      {% endfor %}
+  </ul>
   <form method="get" action="{% url 'register' %}">
-    <button type="submit">Back to userID</button>
+    <button type="submit">Back to userID page</button>
   </form>
   
 

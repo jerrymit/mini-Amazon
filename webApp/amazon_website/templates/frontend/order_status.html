@@ -1,40 +1,43 @@
 {% extends 'base.html' %}
 
-{% block title %}Status{% endblock %}
-
 {% block content %}
-  <h1>Order status</h1>
-
+  <h1>My Orders</h1>
   {% if orders %}
     <table>
       <thead>
         <tr>
-          <th>Order id</th>
+          <th>Order ID</th>
           <th>Product</th>
           <th>Quantity</th>
+          <th>Warehouse</th>
+          <th>Package ID</th>
           <th>destination_x</th>
           <th>destination_y</th>
-          <th>user id</th>
-          <th>status</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
         {% for order in orders %}
           <tr>
-            <td>{{ order.package.package_id }}</td>
+            <td>{{ order.order_id }}</td>
             <td>{{ order.product.description }}</td>
             <td>{{ order.quantity }}</td>
+            <td>{{ order.warehouse.warehouse_id }}</td>
+            <td>{{ order.package.package_id }}</td>
             <td>{{ order.package.destination_x }}</td>
             <td>{{ order.package.destination_y }}</td>
-            <td>{{ order.package.user_id }}</td>
             <td>{{ order.package.status }}</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
-
   {% else %}
-  <p>{{ error_message }}</p>
+    <p>You have no orders.</p>
   {% endif %}
-
+  <form method="get" action="{% url 'buy' %}">
+    <button type="submit">Back to buy</button>
+  </form>
+  <form method="get" action="{% url 'home' %}">
+    <button type="submit">Back to home</button>
+  </form>
 {% endblock %}
