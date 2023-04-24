@@ -27,6 +27,7 @@ def getOrdersWithPackageid(package_id):
     return orders
 
 def getOpenRequest():
+    print("Checking for open reqeuest")
     session = Session()
     open_requests = session.query(Request).filter_by(status='open').all()
     # Print the results
@@ -116,8 +117,9 @@ def init_warehouse(x, y):
 
 if __name__ == "__main__":
     # update_request_status_to_ack(1)
-    # add_pack_request(1)
-    # delete_request(6)
+    #add_pack_request(1)
+    update_request_status_to_open(1)
     # update_request_status_to_open(1)
+    #add_open_request(1, "pack")
     pass
 

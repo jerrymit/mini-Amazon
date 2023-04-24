@@ -68,16 +68,18 @@ def construct_ACommands(buy, topack, load, queries, acks):
 
 def construct_acksList_from_response(AResponse):
     acks = []
-    for arrived_msg in AResponse.arrived:
-        acks.append(arrived_msg.seqnum)
-    for packed_msg in AResponse.ready:
-        acks.append(packed_msg.seqnum)
-    for loaded_msg in AResponse.loaded:
-        acks.append(loaded_msg.seqnum)
-    for error_msg in AResponse.error:
-        acks.append(error_msg.seqnum)
-    for status_msg in AResponse.packagestatus:
-        acks.append(status_msg.seqnum)
+    # for arrived_msg in AResponse.arrived:
+    #     acks.append(arrived_msg.seqnum)
+    # for packed_msg in AResponse.ready:
+    #     acks.append(packed_msg.seqnum)
+    # for loaded_msg in AResponse.loaded:
+    #     acks.append(loaded_msg.seqnum)
+    # for error_msg in AResponse.error:
+    #     acks.append(error_msg.seqnum)
+    # for status_msg in AResponse.packagestatus:
+    #     acks.append(status_msg.seqnum)
+    for ack in AResponse.acks:
+        acks.append(ack)
     return acks
 
 def construct_ACK(acks):
@@ -99,21 +101,23 @@ def construct_AItem(description, count):
     return item
 
 def construct_ASendTruck(package_id, warehouse_id, user_id, x, y, items):
-    send_truck = amazon_ups_pb2.ASendTruck()
-    send_truck.package_id = package_id
-    send_truck.warehouse_id = warehouse_id
-    send_truck.user_id = user_id
-    send_truck.x = x
-    send_truck.y = y
-    send_truck.items.extend(items)
-    return send_truck
+    AMessage = amazon_ups_pb2.AMessage()
+   
+    AMessage.sendTruck.package_id = package_id
+    AMessage.sendTruck.warehouse_id = warehouse_id
+    AMessage.sendTruck.user_id = user_id
+    AMessage.sendTruck.x = x
+    AMessage.sendTruck.y = y
+    AMessage.sendTruck.items.extend(items)
+    return AMessage
 
 def construct_ATruckLoaded(truck_id, warehouse_id, package_id):
-    truck_loaded = amazon_ups_pb2.ATruckLoaded()
-    truck_loaded.truck_id = truck_id
-    truck_loaded.warehouse_id = warehouse_id
-    truck_loaded.package_id = package_id
-    return truck_loaded
+    AMessage = amazon_ups_pb2.AMessage()
+    AMessage.truckLoaded = amazon_ups_pb2.ATruckLoaded()
+    AMessage.truckLoaded.truck_id = truck_id
+    AMessage.truckLoaded.warehouse_id = warehouse_id
+    AMessage.truckLoaded.package_id = package_id
+    return AMessage
 
 def construct_AMessage(sendTruck, truckLoaded):
     message = amazon_ups_pb2.AMessage()
