@@ -1,15 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}UPS Member{% endblock %}
+{% block title %}Register{% endblock %}
 
 {% block content %}
-  <h1>UPS Member?</h1>
-  <p>If you have UPS userID, please enter it:</p>
+  <h1>Register</h1>
+  <p>Input your userID here:</p>
 
   <form method="post" action="{% url 'register' %}">
     {% csrf_token %}
     <label for="user_id">User ID:</label>
+<<<<<<< HEAD
     <input type="number" name="user_id" id="user_id" placeholder="Required" required>
     <button type="submit">Submit</button>
+=======
+    <input type="number" name="user_id" id="user_id">
+    <button type="submit">Register</button>
+>>>>>>> master
   </form>
 {% endblock %}

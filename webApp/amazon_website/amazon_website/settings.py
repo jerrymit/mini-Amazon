@@ -83,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'amazon',
         'USER': 'postgres',
-        'PASSWORD':'amazon',
+        'PASSWORD':'passw0rd',
         'HOST': '127.0.0.1',
         'PORT': 5432,
     }
@@ -130,4 +130,3 @@ LOGIN_REDIRECT_URL = 'home'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-

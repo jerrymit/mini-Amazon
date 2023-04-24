@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import random, socket, json
+from tables import *
 
 db_url = "postgresql://postgres:amazon@127.0.0.1:5432/amazon"
 engine = create_engine(db_url)

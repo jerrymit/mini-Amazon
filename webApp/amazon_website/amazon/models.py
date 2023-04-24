@@ -7,32 +7,37 @@ import random
 # Create your models here.
 
 
-class Commodity(models.Model):
-    commodity_id = models.AutoField(primary_key=True)
-    description = models.TextField()
-    count = models.IntegerField()
 
 class Product(models.Model):
-    product_id = models.AutoField(primary_key=True)
     description = models.TextField()
+    count = models.IntegerField()
 
 class Warehouse(models.Model):
     warehouse_id = models.AutoField(primary_key=True)
     location_x = models.IntegerField()
     location_y = models.IntegerField()
-
-class Package(models.Model):
-    package_id = models.AutoField(primary_key = True)
+    
+class Shipment(models.Model):
+    shipment_id = models.AutoField(primary_key = True)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     destination_x = models.IntegerField()
     destination_y = models.IntegerField()
+<<<<<<< HEAD
     user_id = models.IntegerField(null=True)
     status = models.TextField(default="purchase")
     truck_id = models.IntegerField(null=True)
     
+=======
+    status = models.CharField(max_length = 200, null=True, default="ordering")
+    create_time = models.DateTimeField(default=timezone.now)
+    truck_id = models.IntegerField(null=True)
+
+>>>>>>> master
 class Order(models.Model):
     order_id = models.AutoField(primary_key = True)
     product = models.ForeignKey(Product, on_delete = models.CASCADE, null=True)
     quantity = models.IntegerField()
+<<<<<<< HEAD
     warehouse = models.ForeignKey(Warehouse, on_delete = models.CASCADE)
     package = models.ForeignKey(Package, on_delete = models.CASCADE)
     
@@ -44,17 +49,26 @@ class Request(models.Model):
     
 
 '''
+=======
+    order_time = models.DateTimeField(default=timezone.now)
+    shipment = models.ForeignKey(Shipment, on_delete = models.CASCADE)
+>>>>>>> master
 
 class Cart(models.Model):
-    product = models.ForeignKey(Commodity, on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
 
+'''
 class Shipment(models.Model):
-    shipment_id = models.AutoField(primary_key = True)
+    shipment_id = models.AutoField(primary_key=True)
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     destination_x = models.IntegerField()
     destination_y = models.IntegerField()
-    status = models.CharField(max_length = 200, null=True, default="ordering")
-    create_time = models.DateTimeField(default=timezone.now)
-    truck_id = models.IntegerField(null=True)
+    status = models.CharField(max_length=20)  # packing, packed, loading, loaded, delivering, delivered
+
+class Package(models.Model):
+    package_id = models.AutoField(primary_key=True)
+    shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
 '''

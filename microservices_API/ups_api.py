@@ -3,7 +3,11 @@ import socket
 import threading
 import time 
 from ups_api_subfiles.transmit_msg import *
+from ups_api_subfiles.database_funcs import *
 
+
+AMAZON_HOST = socket.gethostname()
+AMAZON_PORT = 6543 
 
 # Define a function to handle incoming connections and messages
 def handle_connection(conn, addr):
@@ -11,23 +15,46 @@ def handle_connection(conn, addr):
     umsg = receive_UMessage(conn)
     # Check the type of the incoming message and process it accordingly
     if umsg.HasField("truckAtWH"):
-        print("Received UTruckAtWH message:", umsg.truckAtWH)
+        print("Received UTruckAtWH message:")
         # Process the UTruckAtWH message here
+        package_id = umsg.truckAtWH.package_id
+        truck_id = umsg.truckAtWH.truck_id
+        # package table update
+        give_package_truckid(package_id, truck_id)
+        # add a open load request to request table
+        add_open_request(package_id, "load")
+        
     elif umsg.HasField("packageDelivered"):
-        print("Received UPackageDelivered message:", umsg.packageDelivered)
+        print("Received UPackageDelivered message:")
         # Process the UPackageDelivered message here
+        package_id = umsg.packageDelivered.package_id
+        update_package_status(package_id, "delivered")
     conn.close()
 
-# Amazon - UPS socket
-amazon_ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = socket.gethostname()
-port = 6666 # UPS Port 
-amazon_ups_socket.bind((host, port))
-amazon_ups_socket.listen(5)
+
+def sendWorldIdtoWorldService(worldid):
+    internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    WORLD_SERVICE_HOST = "0.0.0.0"
+    WORLD_SERVICE_PORT = 9487 # Internal Port 
+    internal_socket.connect((WORLD_SERVICE_HOST, WORLD_SERVICE_PORT))
+    internal_socket.send(worldid)
 
 
-def main():
+if __name__ == '__main__':
+    # Amazon - UPS socket
+    # Setting up server
+    amazon_ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    amazon_ups_socket.bind((AMAZON_HOST, AMAZON_PORT))
+    amazon_ups_socket.listen(5)
+    print("Waiting")
+    external_ups, addr = amazon_ups_socket.accept()
+    initWorld = receive_UtoAzConnect(external_ups)
+    print(initWorld.worldid)
+    sendWorldIdtoWorldService(str(initWorld.worldid).encode())
+    print("World ID sent to World Service")
+
     # Loop indefinitely to accept incoming connections
+    
     while True:
         # Wait for a new connection
         conn, addr = amazon_ups_socket.accept()

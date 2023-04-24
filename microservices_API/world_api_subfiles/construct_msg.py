@@ -41,10 +41,10 @@ def construct_APack(whnum, things, packageid, seqnum):
     pack.seqnum = seqnum
     return pack
     
-def construct_APutOnTruck(whnum, things, packageid, seqnum):
+def construct_APutOnTruck(whnum, truckid, packageid, seqnum):
     put_on_truck = world_amazon_pb2.APutOnTruck()
     put_on_truck.whnum = whnum
-    put_on_truck.things.extend(things)
+    put_on_truck.truckid = truckid
     put_on_truck.shipid = packageid
     put_on_truck.seqnum = seqnum
     return put_on_truck
@@ -55,33 +55,34 @@ def construct_AQuery(packageid, seqnum):
     query.seqnum = seqnum
     return query
 
-def construct_ACommands(buy, topack, load, queries, simspeed, disconnect, acks):
+def construct_ACommands(buy, topack, load, queries, acks):
     commands = world_amazon_pb2.ACommands()
     commands.buy.extend(buy)
     commands.topack.extend(topack)
     commands.load.extend(load)
     commands.queries.extend(queries)
-    commands.simspeed = simspeed
-    commands.disconnect = disconnect
+    #commands.simspeed = simspeed
+    #commands.disconnect = disconnect
     commands.acks.extend(acks)
     return commands
-    
-def construct_ACK(AResponse):
-    # Extract the seqnum values from the APacked and ALoaded messages
-    seqnums = []
-    for arrived_msg in AResponse.arrived:
-        seqnums.append(arrived_msg.seqnum)
-    for packed_msg in AResponse.ready:
-        seqnums.append(packed_msg.seqnum)
-    for loaded_msg in AResponse.loaded:
-        seqnums.append(loaded_msg.seqnum)
-    for error_msg in AResponse.error:
-        seqnums.append(error_msg.seqnum)
-    for status_msg in AResponse.packagestatus:
-        seqnums.append(status_msg.seqnum)
 
+def construct_acksList_from_response(AResponse):
+    acks = []
+    for arrived_msg in AResponse.arrived:
+        acks.append(arrived_msg.seqnum)
+    for packed_msg in AResponse.ready:
+        acks.append(packed_msg.seqnum)
+    for loaded_msg in AResponse.loaded:
+        acks.append(loaded_msg.seqnum)
+    for error_msg in AResponse.error:
+        acks.append(error_msg.seqnum)
+    for status_msg in AResponse.packagestatus:
+        acks.append(status_msg.seqnum)
+    return acks
+
+def construct_ACK(acks):
     ACommands_ACK = world_amazon_pb2.ACommands()
-    ACommands_ACK.acks.extend(seqnums)
+    ACommands_ACK.acks.extend(acks)
     return ACommands_ACK
 
 # Amazon to UPS client
@@ -113,3 +114,9 @@ def construct_ATruckLoaded(truck_id, warehouse_id, package_id):
     truck_loaded.warehouse_id = warehouse_id
     truck_loaded.package_id = package_id
     return truck_loaded
+
+def construct_AMessage(sendTruck, truckLoaded):
+    message = amazon_ups_pb2.AMessage()
+    message.sendTruck.extend(sendTruck)
+    message.truckLoaded.extend(truckLoaded)
+    return message

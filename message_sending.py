@@ -34,18 +34,8 @@ def send_purchase_more(amazon_world_socket, warehouse_id, frontend_request):
 
         # Check for ack in AResponses message
         if seqnum in responses.acks:
-            if len(responses.arrived) > 0:
-                ACK(amazon_world_socket, responses, "arrived")
-                break 
+            ACK(amazon_world_socket, responses, "arrived")
             # Continue receive AResponses message from the world server
-            while True:
-                whole_msg = receive_response(amazon_world_socket)
-                responses = world_amazon_pb2.AResponses()
-                responses.ParseFromString(whole_msg)
-                print("response: ", responses)
-                if len(responses.arrived) > 0:
-                    ACK(amazon_world_socket, responses, "arrived")
-                    break 
             break
 
         # Wait before sending the request again
@@ -54,7 +44,7 @@ def send_purchase_more(amazon_world_socket, warehouse_id, frontend_request):
         seqnum += 1
 
 def send_APack_to_world(amazon_world_socket, warehouse_id, shipid, frontend_request):
-    seqnum = 1
+    seqnum = 23
     while True:
         commands = construct_APack_to_world(warehouse_id, frontend_request, shipid, seqnum)
 
