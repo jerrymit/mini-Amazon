@@ -57,13 +57,18 @@ def construct_AQuery(packageid, seqnum):
 
 def construct_ACommands(buy, topack, load, queries, acks):
     commands = world_amazon_pb2.ACommands()
-    commands.buy.extend(buy)
-    commands.topack.extend(topack)
-    commands.load.extend(load)
-    commands.queries.extend(queries)
+    if buy is not None:
+        commands.buy.extend(buy)
+    if topack is not None:
+        commands.topack.extend(topack)
+    if load is not None:
+        commands.load.extend(load)
+    if queries is not None:
+        commands.queries.extend(queries)
     #commands.simspeed = simspeed
     #commands.disconnect = disconnect
-    commands.acks.extend(acks)
+    if acks is not None:
+        commands.acks.extend(acks)
     return commands
 
 def construct_acksList_from_response(AResponse):
@@ -81,6 +86,21 @@ def construct_acksList_from_response(AResponse):
     for ack in AResponse.acks:
         acks.append(ack)
     return acks
+
+def construct_seqnumList_from_response(AResponse):
+    sequence = []
+    for arrived_msg in AResponse.arrived:
+        sequence.append(arrived_msg.seqnum)
+    for packed_msg in AResponse.ready:
+        sequence.append(packed_msg.seqnum)
+    for loaded_msg in AResponse.loaded:
+        sequence.append(loaded_msg.seqnum)
+    for error_msg in AResponse.error:
+        sequence.append(error_msg.seqnum)
+    for status_msg in AResponse.packagestatus:
+        sequence.append(status_msg.seqnum)
+    
+    return sequence
 
 def construct_ACK(acks):
     ACommands_ACK = world_amazon_pb2.ACommands()

@@ -75,11 +75,11 @@ def initialize_world():
     # add 100 AInitWarehouse messages to the AConnect message
     ###### DB
     init_warehouse_list = []
-    for i in range(10):
-        for j in range(10):
-            wh = construct_AInitWarehouse(i * 10 + j +1, i * 5, j * 5)
-            init_warehouse_list.append(wh)
-            init_warehouse(i * 5, j * 5)
+    # for i in range(10):
+    #     for j in range(10):
+    wh = construct_AInitWarehouse(1,1,1)
+    init_warehouse_list.append(wh)
+    init_warehouse(1, 1)
 
     connect_msg = construct_AConnect(worldid, init_warehouse_list, True)
     send_command(connect_msg, world_socket)
@@ -150,6 +150,7 @@ if __name__ == '__main__':
                     count = order.quantity
                     Aproduct = construct_AProcuct(product_id, description, count)
                     products.append(Aproduct)
+                    whnum = order.warehouse_id
                 pack = construct_APack(whnum, products, package_id, seqnum)
                 topack.append(pack)
             elif(request.type == "load"):
@@ -175,9 +176,10 @@ if __name__ == '__main__':
         print("received response from world server", AResponse)
         if len(AResponse.acks) > 0:
             acksList = construct_acksList_from_response(AResponse)
+            seqnumList = construct_seqnumList_from_response(AResponse)
             print("acksList", acksList)
             # update the database to ACK and send acks to UPS server
-            ack_mechanics(acksList, world_socket)
+            ack_mechanics(acksList, seqnumList, world_socket)
             proceed_after_ACK(acksList, world_socket)
             
         # DB query
