@@ -20,16 +20,9 @@
   <button type="submit" name="buy">Buy</button>
   </form>
 
-  {% if error_message %}
-      <p>Invalid quantity: {{ error_message }}</p>
-  {% endif %}
-
   <form method="get" action="{% url 'cart' %}">
     {% csrf_token %}
     <button type="submit">View Cart</button>
-  </form>
-  <form method="get" action="{% url 'home' %}">
-    <button type="submit">Back to home</button>
   </form>
 
   {% if products %}

@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'amazon_website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'amazon2',
+        'NAME': 'amazon',
         'USER': 'postgres',
         'PASSWORD':'passw0rd',
         'HOST': '127.0.0.1',
@@ -130,4 +130,3 @@ LOGIN_REDIRECT_URL = 'home'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
