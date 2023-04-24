@@ -30,12 +30,12 @@ while True:
 world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 world_socket.connect((WORLD_HOST, WORLD_PORT))
 
-# # Internal UI Socket
-# internal_ui = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# # set the IP address and port number of the world server
-# ip = '127.0.0.1' 
-# port = 7777
-# internal_ui.connect((ip, port))
+# Internal UI Socket
+internal_ui = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# set the IP address and port number of the world server
+UI_HOST = '127.0.0.1' 
+UI_PORT = 7777
+#internal_ui.connect((ip, port))
 
 
 
@@ -82,7 +82,7 @@ def inform_ui():
     while not connected and retry_count < max_retries:
         time.sleep(2)
         try:
-            ups_socket.connect((ip, port))
+            ups_socket.connect((UI_HOST, UI_PORT))
             print("Conneted to internal UI API")
             connected = True
         except:
@@ -92,7 +92,7 @@ def inform_ui():
 
 if __name__ == '__main__':
     initialize_world()
-    # inform_ui()
+    inform_ui()
 
     while True:
         # get open requests from the DB

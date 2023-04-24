@@ -55,11 +55,11 @@ if __name__ == '__main__':
 
     # Loop indefinitely to accept incoming connections
     
-    # while True:
-    #     # Wait for a new connection
-    #     conn, addr = amazon_ups_socket.accept()
-    #     # Create a new thread to handle the incoming connection and message
-    #     t = threading.Thread(target=handle_connection, args=(conn, addr))
-    #     # Start the new thread
-    #     t.start()
+    while True:
+        # Wait for a new connection
+        conn, addr = amazon_ups_socket.accept()
+        # Create a new thread to handle the incoming connection and message
+        t = threading.Thread(target=handle_connection, args=(conn, addr))
+        # Start the new thread
+        t.start()
 
