@@ -5,6 +5,9 @@ import time
 from ups_api_subfiles.transmit_msg import *
 
 
+AMAZON_HOST = socket.gethostname()
+AMAZON_PORT = 6543 
+
 # Define a function to handle incoming connections and messages
 def handle_connection(conn, addr):
     # Receive the incoming message from the connection
@@ -18,21 +21,35 @@ def handle_connection(conn, addr):
         # Process the UPackageDelivered message here
     conn.close()
 
-# Amazon - UPS socket
-amazon_ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = socket.gethostname()
-port = 6666 # UPS Port 
-amazon_ups_socket.bind((host, port))
-amazon_ups_socket.listen(5)
+
+def sendWorldIdtoWorldService(worldid):
+    internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    WORLD_SERVICE_HOST = "0.0.0.0"
+    WORLD_SERVICE_PORT = 9487 # Internal Port 
+    internal_socket.connect((WORLD_SERVICE_HOST, WORLD_SERVICE_PORT))
+    internal_socket.send(worldid)
 
 
-def main():
+if __name__ == '__main__':
+    # Amazon - UPS socket
+    # Setting up server
+    amazon_ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    amazon_ups_socket.bind((AMAZON_HOST, AMAZON_PORT))
+    amazon_ups_socket.listen(5)
+    print("Waiting")
+    external_ups, addr = amazon_ups_socket.accept()
+    initWorld = receive_UtoAzConnect(external_ups)
+    print(initWorld.worldid)
+    sendWorldIdtoWorldService(str(initWorld.worldid).encode())
+    print("World ID sent to World Service")
+
     # Loop indefinitely to accept incoming connections
-    while True:
-        # Wait for a new connection
-        conn, addr = amazon_ups_socket.accept()
-        # Create a new thread to handle the incoming connection and message
-        t = threading.Thread(target=handle_connection, args=(conn, addr))
-        # Start the new thread
-        t.start()
+    
+    # while True:
+    #     # Wait for a new connection
+    #     conn, addr = amazon_ups_socket.accept()
+    #     # Create a new thread to handle the incoming connection and message
+    #     t = threading.Thread(target=handle_connection, args=(conn, addr))
+    #     # Start the new thread
+    #     t.start()
 

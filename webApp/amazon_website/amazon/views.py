@@ -13,7 +13,7 @@ print("Trying to connect to amazon server")
 # Try to connect to amazon server until success
 amazon_socket = None
 
-HOST = '152.3.54.140'  # The server's hostname or IP address
+HOST = '152.3.53.130'  # The server's hostname or IP address
 #HOST = '152.3.53.130'  # The server's hostname or IP address james
 PORT = 55555        # The port used by the server
 address = (HOST, PORT)
