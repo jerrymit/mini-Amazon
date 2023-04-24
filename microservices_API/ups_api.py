@@ -39,7 +39,14 @@ def handle_connection(conn, addr):
 
 def sendWorldIdtoWorldService(worldid):
     internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    internal_socket.connect((WORLD_SERVICE_HOST, WORLD_SERVICE_PORT))
+    while True:
+        try:
+            internal_socket.connect((WORLD_SERVICE_HOST, WORLD_SERVICE_PORT))
+            print("Connected to World Service")
+            break
+        except:
+            print("World Service not ready yet")
+            time.sleep(1)
     internal_socket.send(worldid)
 
 
@@ -54,7 +61,7 @@ if __name__ == '__main__':
     initWorld = receive_UtoAzConnect(external_ups)
     print(initWorld.worldid)
     sendWorldIdtoWorldService(str(initWorld.worldid).encode())
-    print("World ID sent to World Service")
+    print("World ID sent to World Service", initWorld.worldid)
 
     # Loop indefinitely to accept incoming connections
     

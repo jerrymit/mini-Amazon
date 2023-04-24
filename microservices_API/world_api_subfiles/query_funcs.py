@@ -107,7 +107,7 @@ def update_package_status(package_id, status):
 
 def init_warehouse(x, y):
     session = Session()
-    new_warehouse = Warehouse(x=x, y=y)
+    new_warehouse = Warehouse(location_x=x, location_y=y)
     session.add(new_warehouse)
     session.commit()
     session.close()
