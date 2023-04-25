@@ -4,20 +4,9 @@ from sqlalchemy.orm import sessionmaker
 import random, socket, json
 from tables import *
 
-db_url = "postgresql://postgres:amazon@127.0.0.1:5432/amazon"
+db_url = "postgresql://postgres:amazon@127.0.0.1:5432/amazon3"
 engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
-
-def frontend_connection():
-    # create a TCP/IP socket
-    internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # get local machine name
-    host = socket.gethostname()
-    # set the port for UPS to connect to
-    port = 55555
-    internal_socket.bind((host, port))
-    return internal_socket
     
 def add_commodity():
     session = Session()
@@ -120,3 +109,7 @@ def add_request(pk_id):
     session.add(new_request)
     session.commit()
     session.close()
+
+if __name__ == "__main__":
+    #give_package_truckid(1)
+    pass

@@ -3,9 +3,21 @@
 {% block title %}Order Confirmation{% endblock %}
 
 {% block content %}
-  <h1>Order Confirmation</h1>
-  <p>Your order has been placed successfully!</p>
-  <form method="get" action="{% url 'order_status' %}">
-    <button type="submit">See order status</button>
-  </form>
+<h1>Purchase Results</h1>
+    
+{% for key, value in purchase_fail.items %}
+    {% if value %}
+        <p>The following items are out of stock or unavailable:</p>
+        <ul>
+        {% for item in value %}
+            {% for k, v in item.items %}
+                <li>{{ k }}: {{ v }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endfor %}
+<form method="get" action="{% url 'order_status' %}">
+  <button type="submit">See order status</button>
+</form>
 {% endblock %}

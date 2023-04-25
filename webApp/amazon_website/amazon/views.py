@@ -29,7 +29,6 @@ def register(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id') # assuming 'user_id' is the name of the input field in the registration form
         request.session['user_id'] = user_id
-        print("userID:", user_id)
         return redirect('home')
     else:
         #return redirect('home')
@@ -155,8 +154,8 @@ def Cartbuy(request):
         if len(orders[key]) == 3:
             continue
         request.session['purchase_fail'] = purchase_fail
-        print("orders[key] value: ")
-        print(orders[key])
+        #print("orders[key] value: ")
+        #print(orders[key])
         # serialize the orders data to JSON format
         orders_data = json.dumps(orders[key])
         connected = False
@@ -174,10 +173,13 @@ def Cartbuy(request):
         cart[key] = [item for item in items if item['user_id'] != user_id]
     
     #request.session['cart'] = {}
-    #return render(request, 'home', {'purchase_fail': purchase_fail[key]})
-    return redirect('home')
+    purchase_fail = request.session.get('purchase_fail')
+    #print(purchase_fail)
+    return render(request, 'frontend/cart_confirmed.html', {'purchase_fail': purchase_fail})
+    #return redirect('home')
 
 def add_to_cart(request):
+    #request.session.clear()
     description = request.POST.get('description')
     quantity = int(request.POST.get('quantity'))
     destination_x = request.POST.get('destination_x')
@@ -200,13 +202,11 @@ def add_to_cart(request):
     if key in cart:
         flag = 0
         for item in cart[key]:
-            print("item: ", item)
             if item['description'] == description and item['user_id'] == user_id:
                 total = item['quantity'] + quantity
                 if total > available_quantity:
                     # Show an error message to the user
                     error_message = f"Exceed the maximum number of {description}."
-                    print("ERROR MESSAGE2: ", error_message)
                     return error_message
                 item['quantity'] += quantity
                 flag = 1
@@ -243,15 +243,15 @@ def cart_items(request):
         if filtered_items:
             filtered_cart[key] = filtered_items
 
-    print(filtered_cart)
     items = []
     for key, product_items in filtered_cart.items():
         destination_x, destination_y = key.split(',')
-        print("item_key:", key)
-        print("item_value:", product_items)
+        #print("item_key:", key)
+        #print("item_value:", product_items)
         for item in product_items:
             items.append({
                 #'product': product,
+                'product_id':item['product_id'],
                 'description': item['description'],
                 'quantity': item['quantity'],
                 'destination_x': destination_x,
@@ -265,10 +265,8 @@ def status_search(request):
     if request.method == 'POST':
         package_id = request.POST.get('package_id')
         package = Package.objects.filter(package_id)
-        print("into status_search")
         if package is not None:
             status = package.status
-            print("search success")
             return render(request, 'frontend/package_status.html', {'package': package})
         else:
             status = f"No package found for package_id '{package_id}'"
@@ -302,3 +300,110 @@ def order_status(request):
         package_orders = Order.objects.filter(package=package)
         orders += list(package_orders)
     return render(request, 'frontend/order_status.html', {'orders': orders})
+'''
+def modify_order(request):
+    user_id = request.session.get('user_id', None)
+    cart = request.session.get('cart', {})
+    
+    # Retrieve the product ID and new quantity from the request POST data
+    product_id = int(request.POST.get('product_id'))
+    new_quantity = int(request.POST.get('new_quantity'))
+    
+    # Loop through the cart and find the item to modify
+    for key, items in cart.items():
+        for item in items:
+            if item['user_id'] == user_id and item['product_id'] == product_id:
+                # Update the quantity of the item
+                item['quantity'] = new_quantity
+    
+    # Save the updated cart back to the session
+    request.session['cart'] = cart
+    
+    return redirect('cart')
+
+def modify_order(request, description):
+    user_id = request.session.get('user_id')
+    cart = request.session.get('cart', {})
+
+    # Find the item in the cart that matches the given product ID and user ID
+    for key, items in cart.items():
+        for item in items:
+            if item['user_id'] == user_id and item['description'] == description:
+                # Update the quantity of the item based on user input
+                new_description = request.POST.get('description')
+                new_quantity = request.POST.get('count')
+                new_desx = request.POST.get('destination_x')
+                new_desy = request.POST.get('destination_y')
+                item['description'] = new_description
+                item['quantity'] = int(new_quantity)
+                item['destination_x'] = int(new_desx)
+                item['destination_y'] = int(new_desy)
+
+    # Save the updated cart to the session
+    request.session['cart'] = cart
+
+    # Redirect the user back to the cart page
+    return redirect('cart')
+'''
+def modify_form(request, product_id, description, quantity, destination_x, destination_y):
+    products = Commodity.objects.all().order_by("commodity_id")
+    context = {
+        'product_id': product_id,
+        'description': description,
+        'quantity': quantity,
+        'destination_x': destination_x,
+        'destination_y': destination_y,
+        'products': products,
+    }
+    return render(request, 'frontend/modify_form.html', context)
+
+def modify_order(request, product_id, description, quantity, destination_x, destination_y):
+    # Retrieve the cart items from the session
+    user_id = request.session.get('user_id')
+    cart = request.session.get('cart', {})
+    print("cart1:", cart)
+    print("input user id:", user_id)
+    print("input product_id:", product_id)
+    print("input description:", description)
+    print("input quantity:", quantity)
+    print("input destination_x:", destination_x)
+    print("input destination_y:", destination_y)
+    print("post user id:", user_id)
+    print("post product_id:", product_id)
+    print("post description:", request.POST.get('description'))
+    print("post quantity:", request.POST.get('quantity'))
+    print("post destination_x:", request.POST.get('destination_x'))
+    print("post destination_y:", request.POST.get('destination_y'))
+     # Find the item in the cart that matches the given product ID and user ID
+    for key, items in cart.items(): 
+        for item in items:
+            print("item:", item)
+            print("item['user_id']", item['user_id'])
+            print("item['product_id']", item['product_id'])
+            print("item['description']", item['description'])
+            print("item['quantity']", item['quantity'])
+            print("item['destination_x']", item['destination_x'])
+            print("item['destination_y']", item['destination_y'])
+            if (item['user_id'] == user_id and
+                item['product_id'] == product_id and
+                item['description'] == description and
+                item['quantity'] == quantity and
+                item['destination_x'] == destination_x and
+                item['destination_y'] == destination_y):
+                print("match!!!")
+                # Update the quantity of the item based on user input
+                new_description = request.POST.get('description')
+                new_quantity = request.POST.get('quantity')
+                new_desx = request.POST.get('destination_x')
+                new_desy = request.POST.get('destination_y')
+                item['description'] = new_description
+                item['quantity'] = new_quantity
+                item['destination_x'] = new_desx
+                item['destination_y'] = new_desy
+        key = f"{new_desx},{new_desy}"
+    # Save the updated cart items back to the session
+    print("cart2:", cart)
+    request.session['cart'] = cart
+
+    # Redirect the user back to the cart page
+    return redirect('cart')

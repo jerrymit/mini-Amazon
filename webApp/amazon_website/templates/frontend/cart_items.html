@@ -5,6 +5,7 @@
   <table>
     <thead>
       <tr>
+        <th>Product id</th>
         <th>Product Name</th>
         <th>Quantity</th>
         <th>Destination X</th>
@@ -14,10 +15,12 @@
     <tbody>
       {% for item in items %}
         <tr>
+          <td>{{ item.product_id }}</td>
           <td>{{ item.description }}</td>
           <td>{{ item.quantity }}</td>
           <td>{{ item.destination_x }}</td>
           <td>{{ item.destination_y }}</td>
+          <td><a href="{% url 'modify_form' item.product_id item.description item.quantity item.destination_x item.destination_y %}">Modify</a></td>
         </tr>
       {% endfor %}
     </tbody>
