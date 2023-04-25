@@ -8,11 +8,6 @@ from tables import *
 from query_func import *
 import random, socket, json
 
-db_url = "postgresql://postgres:amazon@127.0.0.1:5432/amazon3"
-engine = create_engine(db_url)
-Session = sessionmaker(bind=engine)
-
-
 def frontend_connection():
     # create a TCP/IP socket
     frontend_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -178,7 +173,7 @@ if __name__ == "__main__":
 
             while True:
                 # Check if the connection is receiving any messages
-                data = connection.recv(1024)
+                data = connection.recv(2048)
                 if not data:
                     print('Connection closed by', client_address)
                     break
