@@ -8,48 +8,31 @@ from world_api_subfiles.transmit_msg import *
 LOCAL_HOST = '152.3.53.130'
 EXTERNAL_HOST = '172.28.184.254'
 
-# set the IP address and port number of the world server
-WORLD_HOST = LOCAL_HOST  # replace with the actual IP address of the world server
+# world server socket
+WORLD_HOST = LOCAL_HOST  
 WORLD_PORT = 23456
+world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # set the IP address and port number of the UPS server
 AMAZON_UPS_HOST = EXTERNAL_HOST  # IP address of the UPS server
 AMAZON_UPS_PORT = 54321 # UPS server port
+ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+while True:
+    try:
+        ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
+        break
+    except:
+        print("UPS server not ready yet")
+        time.sleep(2)
 
 # Internal UI Socket
-# set the IP address and port number of the world server
 UI_HOST = LOCAL_HOST 
 UI_PORT = 7777
-#internal_ui.connect((ip, port))
-ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
 
 # Internal World Socket
-INTERNAL_WORLD_SERVICE_HOST = '152.3.53.130' 
+INTERNAL_WORLD_SERVICE_HOST = LOCAL_HOST 
 INTERNAL_WORLD_SERVICE_PORT = 9487
 
-
-# To UPS Socket
-# ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# while True:
-#     try:
-#         ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
-#         break
-#     except:
-#         print("UPS server not ready yet")
-#         time.sleep(1)
-
-
-# To World Socket
-world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
- # while True:
-    #     try:
-    #         ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
-    #         break
-    #     except:
-    #         print("UPS server not ready yet")
-    #         time.sleep(1)
 
 def getWorldId():
     # Internal UPS Socket
@@ -71,7 +54,7 @@ def initialize_world():
             break
         except:
             print("World server not ready yet")
-            time.sleep(1)
+            time.sleep(2)
     # add 100 AInitWarehouse messages to the AConnect message
     ###### DB
     init_warehouse_list = []
