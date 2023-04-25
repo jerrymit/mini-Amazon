@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if product_id %}
+  <h1>Modify the order</h1>
+  <form method="post" action="{% url 'modify_order' product_id description quantity destination_x destination_y%}">
+  {% csrf_token %}
+  <input type="hidden" name="product_id" value="{{ context.product_id }}">
+  <input type="hidden" name="description" value="{{ context.description }}">
+  <input type="hidden" name="quantity" value="{{ context.quantity }}">
+  <input type="hidden" name="destination_x" value="{{ context.destination_x }}">
+  <input type="hidden" name="destination_y" value="{{ context.destination_y }}">
+  <label for="description">Product:</label>
+  <select name="description">
+    {% for product in products %}
+      <option value="{{ product.description }}">{{ product.description }}</option>
+    {% endfor %}
+  </select><br>
+  <label for="quantity">Quantity:</label>
+  <input type="number" name="quantity" min="1"><br>
+  <label for="destination_x">Destination X:</label>
+  <input type="number" name="destination_x"><br>
+  <label for="destination_y">Destination Y:</label>
+  <input type="number" name="destination_y"><br>
+  <button type="submit" name="modify_order">Edit the order</button>
+  </form>
+{% endif %}
+
+{% endblock %}

@@ -18,7 +18,7 @@ AMAZON_UPS_PORT = 54321 # UPS server port
 
 # Internal UI Socket
 # set the IP address and port number of the world server
-UI_HOST = LOCAL_HOST 
+UI_HOST = '152.3.54.140' 
 UI_PORT = 7777
 #internal_ui.connect((ip, port))
 ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -95,6 +95,7 @@ def initialize_world():
         raise ConnectionError("Failed to connect to world server")
 
 def inform_ui():
+    connected = False
     internal_ui = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while True:
         time.sleep(2)
@@ -104,7 +105,7 @@ def inform_ui():
             break
         except:
             print("Connection to internal UI failed. Retrying...")
-    internal_ui.send("world is ready")
+    internal_ui.send("world is ready".encode())
 
 if __name__ == '__main__':
     initialize_world()
