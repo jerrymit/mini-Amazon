@@ -4,37 +4,28 @@ from sqlalchemy.orm import sessionmaker
 import random, socket, json
 from tables import *
 
-db_url = "postgresql://postgres:amazon@127.0.0.1:5432/amazon"
+
+db_url = "postgresql://postgres:passw0rd@127.0.0.1:5432/amazon6"
 engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
 
-def frontend_connection():
-    # create a TCP/IP socket
-    internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # get local machine name
-    host = socket.gethostname()
-    # set the port for UPS to connect to
-    port = 55555
-    internal_socket.bind((host, port))
-    return internal_socket
-    
 def add_commodity():
     session = Session()
 
     # create commodities
     commodities = [
-        ('apple', 20),
-        ('book', 20),
-        ('cat', 15),
-        ('dog', 10),
-        ('banana', 30),
-        ('cloth', 30),
+        ('apple', 70),
+        ('book', 50),
+        ('cat', 30),
+        ('dog', 30),
+        ('banana', 60),
+        ('cloth', 70),
         ('shoes', 50),
         ('kimchi', 100),
-        ('TV', 40),
-        ('coach', 30),
-        ('ball', 25),
+        ('TV', 60),
+        ('coach', 50),
+        ('ball', 100),
         ('beef noodle', 10),
     ]
 
@@ -120,3 +111,15 @@ def add_request(pk_id):
     session.add(new_request)
     session.commit()
     session.close()
+    
+def change_status(sequence_number, new_type, new_status):
+    session = Session()
+    request = session.query(Request).get(sequence_number)
+    request.type = new_type
+    request.status = new_status
+    session.commit()
+    session.close()
+    
+if __name__ == "__main__":
+    #give_package_truckid(1)
+    pass

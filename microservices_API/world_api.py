@@ -7,6 +7,7 @@ from world_api_subfiles.transmit_msg import *
 
 LOCAL_HOST = '152.3.53.130'
 EXTERNAL_HOST = '172.28.184.254'
+JERRY_HOST = '152.3.54.140' 
 
 # world server socket
 WORLD_HOST = LOCAL_HOST  
@@ -16,14 +17,14 @@ world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # set the IP address and port number of the UPS server
 AMAZON_UPS_HOST = EXTERNAL_HOST  # IP address of the UPS server
 AMAZON_UPS_PORT = 54321 # UPS server port
-ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-while True:
-    try:
-        ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
-        break
-    except:
-        print("UPS server not ready yet")
-        time.sleep(2)
+# ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# while True:
+#     try:
+#         ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
+#         break
+#     except:
+#         print("UPS server not ready yet")
+#         time.sleep(2)
 
 # Internal UI Socket
 UI_HOST = LOCAL_HOST 
@@ -67,6 +68,16 @@ def initialize_world():
     connect_msg = construct_AConnect(worldid, init_warehouse_list, True)
     send_command(connect_msg, world_socket)
     world_connect_response = receive_AConnected(world_socket)
+
+    ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while True:
+        try:
+            ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
+            break
+        except:
+            print("UPS server not ready yet")
+            time.sleep(2)
+
     if(world_connect_response.result == "connected!"):
         print("Connection to world server successful!")
         conneted_msg = construct_AzConnected(world_connect_response.worldid, "success")
@@ -76,8 +87,10 @@ def initialize_world():
         conneted_msg = construct_AzConnected(world_connect_response.worldid, "failed")
         send_command(conneted_msg, ups_socket)
         raise ConnectionError("Failed to connect to world server")
+    return ups_socket
 
 def inform_ui():
+    connected = False
     internal_ui = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while True:
         time.sleep(2)
@@ -87,11 +100,11 @@ def inform_ui():
             break
         except:
             print("Connection to internal UI failed. Retrying...")
-    internal_ui.send("world is ready")
+    internal_ui.send("world is ready".encode())
 
 if __name__ == '__main__':
-    initialize_world()
-    # inform_ui()
+    ups_socket = initialize_world()
+    inform_ui()
 
     while True:
         # get open requests from the DB
@@ -166,7 +179,7 @@ if __name__ == '__main__':
         seqnumList = construct_seqnumList_from_response(AResponse)
         if len(seqnumList) > 0:
             ACK_world(seqnumList, world_socket)
-        proceed_after_ACK(acksList, ups_socket)
+        proceed_after_ACK(AResponse, ups_socket)
             
         # DB query
         # for each ACK, get the query result which has the same seqnum as ACK
