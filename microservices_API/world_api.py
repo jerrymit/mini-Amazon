@@ -1,8 +1,9 @@
 # this is a client api that is used to communicate with the world server and the UPS server
 import socket
 import time
+import select
 from world_api_subfiles.construct_msg import *
-from world_api_subfiles.query_funcs import *
+from world_api_subfiles.worldAPI_query import *
 from world_api_subfiles.transmit_msg import *
 
 LOCAL_HOST = '152.3.53.130'
@@ -48,6 +49,15 @@ def getWorldId():
     return worldid
 
 def initialize_world():
+    ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while True:
+        try:
+            ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
+            break
+        except:
+            print("UPS server not ready yet")
+            time.sleep(2)
+    
     worldid = getWorldId()
     while True:
         try:
@@ -68,15 +78,6 @@ def initialize_world():
     connect_msg = construct_AConnect(worldid, init_warehouse_list, True)
     send_command(connect_msg, world_socket)
     world_connect_response = receive_AConnected(world_socket)
-
-    ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    while True:
-        try:
-            ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
-            break
-        except:
-            print("UPS server not ready yet")
-            time.sleep(2)
 
     if(world_connect_response.result == "connected!"):
         print("Connection to world server successful!")
@@ -104,7 +105,7 @@ def inform_ui():
 
 if __name__ == '__main__':
     ups_socket = initialize_world()
-    inform_ui()
+    #inform_ui()
 
     while True:
         # get open requests from the DB
@@ -152,34 +153,39 @@ if __name__ == '__main__':
             elif(request.type == "load"):
                 seqnum = request.request_id
                 package_id = request.pk_id
-                truck_id = request.truck_id
+                package = get_Package(package_id)
+                truck_id = package.truck_id
                 orders = getOrdersWithPackageid(package_id)
-                whnum = 0
-                for order in orders:
-                    whnum = order.warehouse_id
+                whnum = 1
+                # for order in orders:
+                #     whnum = order.warehouse_id
                 APutOnTruck = construct_APutOnTruck(truck_id, whnum, package_id, seqnum)
                 load.append(APutOnTruck)
 
         # only construct and send ACommands if there exist buy, topack, load, queries, or acks
         if buy or topack or load or queries or acks:
             commands = construct_ACommands(buy, topack, load, queries, acks)
-            print("sending commands to world server", commands)
+            print("sending commands to world server\n", commands)
             # send Acommand to world server
             send_command(commands, world_socket)
         
         # receive AResponse from world server
-        AResponse = receive_AResponse(world_socket)
-        print("received response from world server", AResponse)
-        if len(AResponse.acks) > 0:
-            acksList = construct_acksList_from_response(AResponse)
-    
-            print("acksList", acksList)
-            # update the database to ACK and send acks to UPS server
-            ACK_request(acksList)
-        seqnumList = construct_seqnumList_from_response(AResponse)
-        if len(seqnumList) > 0:
-            ACK_world(seqnumList, world_socket)
-        proceed_after_ACK(AResponse, ups_socket)
+        read_sockets, write_sockets, error_sockets = select.select([world_socket], [], [], 5.0)
+        if world_socket not in read_sockets:
+            print("no response from world server")
+        else:
+            AResponse = receive_AResponse(world_socket)
+            print("received response from world server\n", AResponse)
+            if len(AResponse.acks) > 0:
+                acksList = construct_acksList_from_response(AResponse)
+        
+                print("acksList", acksList)
+                # update the database to ACK and send acks to UPS server
+                ACK_request(acksList)
+            seqnumList = construct_seqnumList_from_response(AResponse)
+            if len(seqnumList) > 0:
+                ACK_world(seqnumList, world_socket)
+            proceed_after_ACK(AResponse, acksList, ups_socket)
             
         # DB query
         # for each ACK, get the query result which has the same seqnum as ACK

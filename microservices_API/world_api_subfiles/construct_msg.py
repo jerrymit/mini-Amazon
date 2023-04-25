@@ -133,7 +133,6 @@ def construct_ASendTruck(package_id, warehouse_id, user_id, x, y, items):
 
 def construct_ATruckLoaded(truck_id, warehouse_id, package_id):
     AMessage = amazon_ups_pb2.AMessage()
-    AMessage.truckLoaded = amazon_ups_pb2.ATruckLoaded()
     AMessage.truckLoaded.truck_id = truck_id
     AMessage.truckLoaded.warehouse_id = warehouse_id
     AMessage.truckLoaded.package_id = package_id

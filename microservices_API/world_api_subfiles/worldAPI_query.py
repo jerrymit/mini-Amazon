@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker
 from tables import *
 import random, socket, json
 
-db_url = "postgresql://postgres:passw0rd@127.0.0.1:5432/amazon6"
 engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
 
@@ -102,8 +101,9 @@ def get_sizeof_request():
 if __name__ == "__main__":
     # update_request_status_to_ack(1)
     #add_pack_request(1)
+    #delete_request(12)
     update_request_status_to_open(1)
     # update_request_status_to_open(1)
-    #add_open_request(1, "pack")
+    #add_open_request(1, "purchase")
     pass
 

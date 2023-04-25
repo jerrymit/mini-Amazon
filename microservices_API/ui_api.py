@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from tables import *
 from query_func import *
 import random, socket, json
+import time
 
 def frontend_connection():
     # create a TCP/IP socket
@@ -143,8 +144,8 @@ def change_status(sequence_number, new_type, new_status):
 '''
 
 if __name__ == "__main__":
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    # Base.metadata.drop_all(engine)
+    # Base.metadata.create_all(engine)
         
     while True:
         try:
@@ -158,6 +159,7 @@ if __name__ == "__main__":
             break
         except:
             print("reconnect")
+            time.sleep(2)
             # Receive the message from the connection
         
     while True:
