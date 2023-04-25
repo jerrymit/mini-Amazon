@@ -88,7 +88,7 @@ def proceed_after_ACK(AResponse, ups_socket):
             package_id = ready.shipid
             update_package_status(package_id, "packed")
             package = get_Package(package_id)
-            warehouse_id = 0
+            warehouse_id = 1
             user_id = package.user_id
             x = package.destination_x
             y = package.destination_y
@@ -100,7 +100,7 @@ def proceed_after_ACK(AResponse, ups_socket):
                 count = order.quantity
                 item = construct_AItem(description, count)
                 items.append(item)
-                warehouse_id = order.warehouse_id
+                # warehouse_id = order.warehouse_id
             Amessage = construct_ASendTruck(package_id, warehouse_id, user_id, x, y, items)
             send_command(Amessage, ups_socket)
 
@@ -110,10 +110,10 @@ def proceed_after_ACK(AResponse, ups_socket):
             update_package_status(package_id, "loaded to truck")
             package = get_Package(package_id)
             truck_id = package.truck_id
-            warehouse_id = 0
-            orders = getOrdersWithPackageid(package_id)
-            for order in orders:
-                warehouse_id = order.warehouse_id
+            warehouse_id = 1
+            # orders = getOrdersWithPackageid(package_id)
+            # for order in orders:
+            #     warehouse_id = order.warehouse_id
             Amessage = construct_ATruckLoaded(truck_id, warehouse_id, package_id)
             send_command(Amessage, ups_socket)
 
