@@ -90,6 +90,12 @@ def init_warehouse(x, y):
     session.add(new_warehouse)
     session.commit()
     session.close()
+
+def get_sizeof_request():
+    session = Session()
+    size = session.query(Request).count()
+    session.close()
+    return size
     
 
 

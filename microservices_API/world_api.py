@@ -176,11 +176,14 @@ if __name__ == '__main__':
         print("received response from world server", AResponse)
         if len(AResponse.acks) > 0:
             acksList = construct_acksList_from_response(AResponse)
-            seqnumList = construct_seqnumList_from_response(AResponse)
+    
             print("acksList", acksList)
             # update the database to ACK and send acks to UPS server
-            ack_mechanics(acksList, seqnumList, world_socket)
-            proceed_after_ACK(acksList, world_socket)
+            ACK_request(acksList)
+        seqnumList = construct_seqnumList_from_response(AResponse)
+        if len(seqnumList) > 0:
+            ACK_world(seqnumList, world_socket)
+        proceed_after_ACK(acksList, ups_socket)
             
         # DB query
         # for each ACK, get the query result which has the same seqnum as ACK

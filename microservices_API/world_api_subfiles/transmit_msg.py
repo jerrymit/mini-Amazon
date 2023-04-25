@@ -42,7 +42,7 @@ def receive_UtoAzConnect(socket):
     responses.ParseFromString(whole_msg)
     return responses
 
-def ack_mechanics(acksList, seqnumList, world_socket):
+def ACK_request(acksList):
     # get a list of acks from the AResponse
     for ack in acksList:
         print("Ack id ")
@@ -51,6 +51,8 @@ def ack_mechanics(acksList, seqnumList, world_socket):
             update_request_status_to_ack(ack) 
         except:
             print("Some Ack error")
+
+def ACK_world(seqnumList, world_socket):
     # create ACommands_ACK to send to world server
     ACommands_ACK = construct_ACK(seqnumList)
     print("sending ACK to world server", ACommands_ACK)
@@ -68,14 +70,22 @@ def ack_mechanics(acksList, seqnumList, world_socket):
     # print("sending ACK to world server", ACommands_ACK)
     # send_command(ACommands_ACK, world_socket)
 
-def proceed_after_ACK(acksList, world_socket):
-    for ack in acksList:
-        request = get_request_with_ack(ack)
-        if request.type == "purchase":
-            package_id = request.pk_id
-            add_open_request(package_id, "pack")
-        elif request.type == "pack":
-            package_id = request.pk_id
+def proceed_after_ACK(AResponse, ups_socket):
+
+    #special case for APurchaseMore
+    if len(AResponse.acks) > 0 and len(AResponse.arrived) > 0:
+        acksList = construct_acksList_from_response(AResponse)
+        for ack in acksList:
+            # check if ack is a valid request_id
+            if ack < get_sizeof_request():
+                request = get_request_with_ack(ack)
+                if request.type == "purchase":
+                    package_id = request.pk_id
+                    add_open_request(package_id, "pack")
+    
+    if AResponse.HasField("ready"):
+        for ready in AResponse.ready:
+            package_id = ready.shipid
             update_package_status(package_id, "packed")
             package = get_Package(package_id)
             warehouse_id = 0
@@ -92,10 +102,11 @@ def proceed_after_ACK(acksList, world_socket):
                 items.append(item)
                 warehouse_id = order.warehouse_id
             Amessage = construct_ASendTruck(package_id, warehouse_id, user_id, x, y, items)
-           
-            send_command(Amessage, world_socket)
-        elif request.type == "load":
-            package_id = request.pk_id
+            send_command(Amessage, ups_socket)
+
+    if AResponse.HasField("loaded"):
+        for loaded in AResponse.loaded:
+            package_id = loaded.shipid
             update_package_status(package_id, "loaded to truck")
             package = get_Package(package_id)
             truck_id = package.truck_id
@@ -104,20 +115,57 @@ def proceed_after_ACK(acksList, world_socket):
             for order in orders:
                 warehouse_id = order.warehouse_id
             Amessage = construct_ATruckLoaded(truck_id, warehouse_id, package_id)
-            
-            send_command(Amessage, world_socket)
+            send_command(Amessage, ups_socket)
 
-    # DB query
-        # for each ACK, get the query result which has the same seqnum as ACK
-            # change the status from OPEN to ACK
-            # if type == APurchaseMore
-                # Add a Pack rquest with OPEN status and package_id from the query result
-            # if type == PACK 
-                # with package_id, get user_id (optional), warehouse_id, x, y from query
-                # with package id, get all the products from query 
-                    # create AItem for each description and count of the product
-                # create AsendTruck with package_id, warehouse_id, user_id, x, y, and AItem
-                # create and send AMessage with ASendTruck type to UPS server
-            # if type == LOAD 
-                # with package_id, get truck_id and warehouse_id
-                # Create and send AMessage with ATruckLoaded type to UPS server
+    # for ack in acksList:
+    #     request = get_request_with_ack(ack)
+    #     if request.type == "purchase":
+    #         package_id = request.pk_id
+    #         add_open_request(package_id, "pack")
+    #     elif request.type == "pack":
+    #         package_id = request.pk_id
+    #         update_package_status(package_id, "packed")
+    #         package = get_Package(package_id)
+    #         warehouse_id = 0
+    #         user_id = package.user_id
+    #         x = package.destination_x
+    #         y = package.destination_y
+    #         orders = getOrdersWithPackageid(package_id)
+    #         items = []
+    #         for order in orders:
+    #             product = getProductWithProductid(order.product_id)
+    #             description = product.description
+    #             count = order.quantity
+    #             item = construct_AItem(description, count)
+    #             items.append(item)
+    #             warehouse_id = order.warehouse_id
+    #         Amessage = construct_ASendTruck(package_id, warehouse_id, user_id, x, y, items)
+           
+    #         send_command(Amessage, world_socket)
+    #     elif request.type == "load":
+    #         package_id = request.pk_id
+    #         update_package_status(package_id, "loaded to truck")
+    #         package = get_Package(package_id)
+    #         truck_id = package.truck_id
+    #         warehouse_id = 0
+    #         orders = getOrdersWithPackageid(package_id)
+    #         for order in orders:
+    #             warehouse_id = order.warehouse_id
+    #         Amessage = construct_ATruckLoaded(truck_id, warehouse_id, package_id)
+            
+    #         send_command(Amessage, world_socket)
+
+    # # DB query
+    #     # for each ACK, get the query result which has the same seqnum as ACK
+    #         # change the status from OPEN to ACK
+    #         # if type == APurchaseMore
+    #             # Add a Pack rquest with OPEN status and package_id from the query result
+    #         # if type == PACK 
+    #             # with package_id, get user_id (optional), warehouse_id, x, y from query
+    #             # with package id, get all the products from query 
+    #                 # create AItem for each description and count of the product
+    #             # create AsendTruck with package_id, warehouse_id, user_id, x, y, and AItem
+    #             # create and send AMessage with ASendTruck type to UPS server
+    #         # if type == LOAD 
+    #             # with package_id, get truck_id and warehouse_id
+    #             # Create and send AMessage with ATruckLoaded type to UPS server
