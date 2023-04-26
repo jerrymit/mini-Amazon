@@ -8,6 +8,7 @@ from world_api_subfiles.transmit_msg import *
 
 LOCAL_HOST = '152.3.53.130'
 EXTERNAL_HOST = '172.28.184.254'
+CAROLINE_HOST = '152.3.54.6'
 JERRY_HOST = '152.3.54.140' 
 
 # world server socket
@@ -16,7 +17,7 @@ WORLD_PORT = 23456
 world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # set the IP address and port number of the UPS server
-AMAZON_UPS_HOST = EXTERNAL_HOST  # IP address of the UPS server
+AMAZON_UPS_HOST = CAROLINE_HOST  # IP address of the UPS server
 AMAZON_UPS_PORT = 54321 # UPS server port
 # ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # while True:
