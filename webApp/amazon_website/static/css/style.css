@@ -1,0 +1,11 @@
+.container {
+    background-color: black;
+    background-image: linear-gradient(to bottom, #000000, #c36609);
+    background-size: cover;
+    background-position: center center;
+    height: 100%;
+  }
+
+  .custom-background {
+    background: linear-gradient(to bottom, #000000, #c36609);
+  }

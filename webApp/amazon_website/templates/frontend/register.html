@@ -3,13 +3,17 @@
 {% block title %}UPS Member{% endblock %}
 
 {% block content %}
-  <h1>UPS Member?</h1>
-  <p>If you have UPS userID, please enter it:</p>
+  <div class="container">
+    <h1>UPS Member?</h1>
+    <p>If you have a UPS userID, please enter it:</p>
 
-  <form method="post" action="{% url 'register' %}">
-    {% csrf_token %}
-    <label for="user_id">User ID:</label>
-    <input type="number" name="user_id" id="user_id" placeholder="Required" required>
-    <button type="submit">Submit</button>
-  </form>
+    <form method="post" action="{% url 'register' %}">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="user_id" class="form-label">User ID:</label>
+        <input type="number" class="form-control" name="user_id" id="user_id" placeholder="Required" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
 {% endblock %}
