@@ -143,29 +143,35 @@ def change_status(sequence_number, new_type, new_status):
     session.close()
 '''
 
+LOCAL_HOST = '152.3.53.130'
+LOCAL_PORT = 7777
+
 if __name__ == "__main__":
-    # Base.metadata.drop_all(engine)
-    # Base.metadata.create_all(engine)
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
         
     while True:
         try:
-            internal_socket = internal_connection()
+            # create a TCP/IP socket
+            internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            internal_socket.bind((LOCAL_HOST, LOCAL_PORT))
+            #internal_socket = internal_connection()
             internal_socket.listen()
-            print('Waiting for the world to be ready')
+            print('listening to internal requests...')
             connection, address = internal_socket.accept()
             print(f"Connected to {address}")
             message = connection.recv(1024).decode()
             print(f"Received message: {message}")
             break
-        except:
-            print("reconnect")
+        except Exception as e:
+            print(e)
             time.sleep(2)
             # Receive the message from the connection
         
     while True:
         add_commodity()
         add_product()
-        add_warehouse()
+        #add_warehouse()
         frontend_socket = frontend_connection()
         frontend_socket.listen()
         print('Waiting for frontend request...')

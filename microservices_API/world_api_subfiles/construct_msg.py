@@ -28,14 +28,14 @@ def construct_AProcuct(id, description, count):
 
 def construct_APurchaseMore(whnum, things, seqnum):
     purchase_more = world_amazon_pb2.APurchaseMore()
-    purchase_more.whnum = whnum
+    purchase_more.whnum = 1
     purchase_more.things.extend(things)
     purchase_more.seqnum = seqnum
     return purchase_more
 
 def construct_APack(whnum, things, packageid, seqnum):
     pack = world_amazon_pb2.APack()
-    pack.whnum = whnum
+    pack.whnum = 1
     pack.things.extend(things)
     pack.shipid = packageid
     pack.seqnum = seqnum
@@ -43,7 +43,7 @@ def construct_APack(whnum, things, packageid, seqnum):
     
 def construct_APutOnTruck(whnum, truckid, packageid, seqnum):
     put_on_truck = world_amazon_pb2.APutOnTruck()
-    put_on_truck.whnum = whnum
+    put_on_truck.whnum = 1
     put_on_truck.truckid = truckid
     put_on_truck.shipid = packageid
     put_on_truck.seqnum = seqnum

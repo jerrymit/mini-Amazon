@@ -106,7 +106,7 @@ def inform_ui():
 
 if __name__ == '__main__':
     ups_socket = initialize_world()
-    #inform_ui()
+    inform_ui()
 
     while True:
         # get open requests from the DB
@@ -123,7 +123,7 @@ if __name__ == '__main__':
                 seqnum = request.request_id
                 package_id = request.pk_id
                 orders = getOrdersWithPackageid(package_id)
-                whnum = 0
+                whnum = 1
                 products = []
                 for order in orders:
                     product = getProductWithProductid(order.product_id)
@@ -132,14 +132,13 @@ if __name__ == '__main__':
                     count = order.quantity
                     Aproduct = construct_AProcuct(product_id, description, count)
                     products.append(Aproduct)
-                    whnum = order.warehouse_id
                 purchase_more = construct_APurchaseMore(whnum, products, seqnum)
                 buy.append(purchase_more)
             elif(request.type == "pack"):
                 seqnum = request.request_id
                 package_id = request.pk_id
                 orders = getOrdersWithPackageid(package_id)
-                whnum = 0
+                whnum = 1
                 products = []
                 for order in orders:
                     product = getProductWithProductid(order.product_id)
@@ -148,7 +147,6 @@ if __name__ == '__main__':
                     count = order.quantity
                     Aproduct = construct_AProcuct(product_id, description, count)
                     products.append(Aproduct)
-                    whnum = order.warehouse_id
                 pack = construct_APack(whnum, products, package_id, seqnum)
                 topack.append(pack)
             elif(request.type == "load"):

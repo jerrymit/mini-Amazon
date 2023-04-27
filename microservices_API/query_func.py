@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker
 import random, socket, json
 from tables import *
 
-db_url = "postgresql://postgres:passw0rd@127.0.0.1:5432/amazon2"
 engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
 
@@ -106,7 +105,7 @@ def add_order(product_id, count, pk_id, warehouse_id):
 def add_request(pk_id):
     session = Session()
     package = session.query(Package).get(pk_id)
-    new_request = Request(type = "purchase", status = "Open", package=package)
+    new_request = Request(type = "purchase", status = "open", package=package)
     session.add(new_request)
     session.commit()
     session.close()
