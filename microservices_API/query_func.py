@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import random, socket, json
 from tables import *
 
-db_url = "postgresql://postgres:passw0rd@127.0.0.1:5432/amazon2"
+db_url = "postgresql://postgres:amazon@127.0.0.1:5432/amazon5"
 engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
 
