@@ -7,12 +7,16 @@
   <p>Use the search bar to find products:</p>
 
   <form method="get" action="/search_result">
-    <input type="text" name="search_input" placeholder="Search for products...">
+    <input type="text" name="search_input" placeholder="Search for products..." required>
     <button type="submit">Search</button>
   </form>
   <p>
     <button onclick="window.location.href='{% url 'buy' %}'">Buy Now</button>
   </p>
+  <form method="get" action="{% url 'cart' %}">
+    {% csrf_token %}
+    <button type="submit">View Cart</button>
+  </form>
   <form method="get" action="{% url 'order_status' %}">
     <button type="submit">Check order status</button>
   </form>

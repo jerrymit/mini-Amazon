@@ -11,20 +11,26 @@
     {% endfor %}
   </select><br>
   <label for="quantity">Quantity:</label>
-  <input type="number" name="quantity" min="1"><br>
+  <input type="number" name="quantity" min="1" required><br>
   <label for="destination_x">Destination X:</label>
-  <input type="number" name="destination_x"><br>
+  <input type="number" name="destination_x" required><br>
   <label for="destination_y">Destination Y:</label>
-  <input type="number" name="destination_y"><br>
+  <input type="number" name="destination_y" required><br>
   <button type="submit" name="add_to_cart">Add to Cart</button>
   <button type="submit" name="buy">Buy</button>
   </form>
 
+  {% if error_message %}
+    <p>{{ error_message }}</p>
+  {% endif %}
   <form method="get" action="{% url 'cart' %}">
     {% csrf_token %}
     <button type="submit">View Cart</button>
   </form>
-
+  <form method="get" action="{% url 'home' %}">
+    <button type="submit">Back to home</button>
+  </form>
+  <button onclick="javascript:history.go(-1)">Back to previous page</button>
   {% if products %}
         <h2>All products</h2>
         <ul>
