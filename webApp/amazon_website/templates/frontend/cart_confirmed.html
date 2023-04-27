@@ -11,19 +11,23 @@
     <button type="submit">See order status</button>
   </form>
 <h1>Purchase Results</h1>
-    
-{% for key, value in purchase_fail.items %}
-    {% if value %}
-        <p>The following items are out of stock or unavailable:</p>
-        <ul>
-        {% for item in value %}
-            {% for k, v in item.items %}
-                <li>{{ k }}: {{ v }}</li>
-            {% endfor %}
+<p>Your order has been placed successfully!</p>
+{% if purchase_fail %}
+    {% if purchase_fail|length > 0 %}
+        {% for key, value in purchase_fail.items %}
+            {% if value %}
+                <p>The following product purchase failed, either due to insufficient inventory or the product does not exist. </p>
+                <ul>
+                {% for item in value %}
+                    {% for k, v in item.items %}
+                        <li>{{ k }}: {{ v }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            {% endif %}
         {% endfor %}
-        </ul>
     {% endif %}
-{% endfor %}
+{% endif %}
 <form method="get" action="{% url 'order_status' %}">
   <button type="submit">See order status</button>
 </form>
