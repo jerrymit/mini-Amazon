@@ -19,7 +19,7 @@ def add_commodity():
         ('cat', 30),
         ('dog', 30),
         ('banana', 60),
-        ('cloth', 70),
+        ('clothes', 70),
         ('shoes', 50),
         ('kimchi', 100),
         ('TV', 60),
@@ -29,8 +29,10 @@ def add_commodity():
     ]
 
     for description, count in commodities:
-        commodity = Commodity(description=description, count=count)
-        session.add(commodity)
+        commodity = session.query(Commodity).filter_by(description=description).first()
+        if not commodity:
+            commodity = Commodity(description=description, count=count)
+            session.add(commodity)
 
     session.commit()
     session.close()
@@ -45,7 +47,7 @@ def add_product():
         ('cat'),
         ('dog'),
         ('banana'),
-        ('cloth'),
+        ('clothes'),
         ('shoes'),
         ('kimchi'),
         ('TV'),
@@ -55,8 +57,10 @@ def add_product():
     ]
 
     for description in products:
-        commodity = Product(description=description)
-        session.add(commodity)
+        product = session.query(Product).filter_by(description=description).first()
+        if not product:
+            product = Product(description=description)
+            session.add(product)
 
     session.commit()
     session.close()
@@ -106,7 +110,7 @@ def add_order(product_id, count, pk_id, warehouse_id):
 def add_request(pk_id):
     session = Session()
     package = session.query(Package).get(pk_id)
-    new_request = Request(type = "purchase", status = "Open", package=package)
+    new_request = Request(type = "purchase", status = "open", package=package)
     session.add(new_request)
     session.commit()
     session.close()
