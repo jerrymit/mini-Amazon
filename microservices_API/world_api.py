@@ -1,4 +1,4 @@
-'''
+
 # this is a client api that is used to communicate with the world server and the UPS server
 import socket
 import time
@@ -201,9 +201,8 @@ if __name__ == '__main__':
             # if type == LOAD 
                 # with package_id, get truck_id and warehouse_id
                 # Create and send AMessage with ATruckLoaded type to UPS server
-'''
 
-#記得回復成上面的版本
+'''
 # this is a client api that is used to communicate with the world server and the UPS server
 import socket
 import time
@@ -384,3 +383,4 @@ if __name__ == '__main__':
     #         # if type == LOAD 
     #             # with package_id, get truck_id and warehouse_id
     #             # Create and send AMessage with ATruckLoaded type to UPS server
+'''
