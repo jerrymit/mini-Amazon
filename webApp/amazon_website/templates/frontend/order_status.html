@@ -10,7 +10,6 @@
             <th>Order ID</th>
             <th>Product</th>
             <th>Quantity</th>
-            <th>Warehouse</th>
             <th>Package ID</th>
             <th>destination_x</th>
             <th>destination_y</th>
@@ -20,14 +19,13 @@
         <tbody>
           {% for order in orders %}
             <tr>
-              <td>{{ order.order_id }}</td>
-              <td>{{ order.product.description }}</td>
-              <td>{{ order.quantity }}</td>
-              <td>{{ order.warehouse.warehouse_id }}</td>
-              <td>{{ order.package.package_id }}</td>
-              <td>{{ order.package.destination_x }}</td>
-              <td>{{ order.package.destination_y }}</td>
-              <td>{{ order.package.status }}</td>
+              <td style="background-color: white; color: black;">{{ order.order_id }}</td>
+              <td style="background-color: white; color: black;">{{ order.product.description }}</td>
+              <td style="background-color: white; color: black;">{{ order.quantity }}</td>
+              <td style="background-color: white; color: black;">{{ order.package.package_id }}</td>
+              <td style="background-color: white; color: black;">{{ order.package.destination_x }}</td>
+              <td style="background-color: white; color: black;">{{ order.package.destination_y }}</td>
+              <td style="background-color: white; color: black;">{{ order.package.status }}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -45,7 +43,7 @@
         }
 
         th {
-          background-color: #4CAF50;
+          background-color: #FFA500;
           color: white;
         }
       </style>

@@ -33,12 +33,13 @@ def internal_connection():
     return internal_socket
 
 
-LOCAL_HOST = '152.3.53.130'
+#LOCAL_HOST = '152.3.53.130'
+LOCAL_HOST = '152.3.54.140'
 LOCAL_PORT = 7777
 
 if __name__ == "__main__":
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    #Base.metadata.drop_all(engine)
+    #Base.metadata.create_all(engine)
         
     while True:
         try:

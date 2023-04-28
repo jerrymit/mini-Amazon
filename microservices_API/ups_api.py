@@ -5,7 +5,8 @@ import time
 from ups_api_subfiles.transmit_msg import *
 from ups_api_subfiles.upsAPI_query import *
 
-LOCAL_HOST = '152.3.53.130'
+#LOCAL_HOST = '152.3.53.130'
+LOCAL_HOST = '152.3.54.140'
 EXTERNAL_HOST = '172.28.216.179'
 
 AMAZON_HOST = LOCAL_HOST
