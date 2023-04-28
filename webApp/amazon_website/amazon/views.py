@@ -70,10 +70,10 @@ def Buy(request):
             product_id = product.commodity_id
             # Check if the requested quantity is valid
             if int(quantity) <= 0 or int(quantity) > product.count:
-                error_message = f"Only {product.count} units of {description} are available. Try again!"
+                error_message = f"Only {product.count} units of {description} are available. Failed to buy!"
+                print("product.count is: ", product.count)
                 products = Commodity.objects.all()
-                warehouses = Warehouse.objects.all()
-                return render(request, 'frontend/buy.html', {'products': products, 'warehouses': warehouses})
+                return render(request, 'frontend/buy.html', {'error_message':error_message,'products': products})
             
             # Send data over socket
             orders = {}
@@ -109,8 +109,7 @@ def Buy(request):
     else:
         # Render the buy form with a list of available products
         products = Commodity.objects.all()
-        warehouses = Warehouse.objects.all()
-        return render(request, 'frontend/buy.html', {'products': products, 'warehouses': warehouses})
+        return render(request, 'frontend/buy.html', {'products': products})
     
 def Cartbuy(request):
     user_id = request.session.get('user_id', None)
@@ -209,7 +208,7 @@ def add_to_cart(request):
     
     if quantity > available_quantity:
         # Show an error message to the user
-        error_message = f"Only {available_quantity} units of {description} are available. Try again!"
+        error_message = f"Only {available_quantity} units of {description} are available. Failed to add to cart!"
         return error_message
     # Add product to cart
     product_id = product.commodity_id
@@ -223,7 +222,7 @@ def add_to_cart(request):
                 total = item['quantity'] + quantity
                 if total > available_quantity:
                     # Show an error message to the user
-                    error_message = f"Exceed the maximum number of {description}."
+                    error_message = f"Exceed the maximum number of {description}.\nFail to add the {description} to the cart."
                     return error_message
                 item['quantity'] += quantity
                 flag = 1
@@ -330,6 +329,36 @@ def modify_form(request, product_id, description, quantity, destination_x, desti
         'products': products,
     }
     return render(request, 'frontend/modify_form.html', context)
+
+def cancel_form(request, product_id, description, quantity, destination_x, destination_y):
+    # Retrieve the cart items from the session
+    user_id = request.session.get('user_id')
+    cart = request.session.get('cart', {})
+    items_to_remove = []
+     # Find the item in the cart that matches the given product ID and user ID
+    for key, items in cart.items(): 
+        for item in items:
+            if (item['user_id'] == user_id and
+                item['product_id'] == product_id and
+                item['description'] == description and
+                int(item['quantity']) == int(quantity) and
+                int(item['destination_x']) == int(destination_x) and
+                int(item['destination_y']) == int(destination_y)):
+                #print("match!!!")
+                # Remove the item from the cart
+                items_to_remove.append((key, item))
+                
+    # Remove the items from the cart
+    for key, item in items_to_remove:
+        cart[key].remove(item)
+        if len(cart[key]) == 0:
+            del cart[key]
+
+    # Save the updated cart items back to the session
+    request.session['cart'] = cart
+
+    # Redirect the user back to the cart page
+    return redirect('cart')
 
 def modify_order(request, product_id, description, quantity, destination_x, destination_y):
     # Retrieve the cart items from the session
