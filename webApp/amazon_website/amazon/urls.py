@@ -20,6 +20,7 @@ urlpatterns = [
     path('order_status', views.order_status, name='order_status'),
     path('modify_order/<int:product_id>/<str:description>/<int:quantity>/<int:destination_x>/<int:destination_y>/', views.modify_order, name='modify_order'),
     path('modify-form/<int:product_id>/<str:description>/<int:quantity>/<int:destination_x>/<int:destination_y>/', views.modify_form, name='modify_form'),
+    path('cancel-form/<int:product_id>/<str:description>/<int:quantity>/<int:destination_x>/<int:destination_y>/', views.cancel_form, name='cancel_form'),
     #path('Product_status', views.package_status, name='Product_status'),
     
     #path('home/search_results/order', views.assign_order, name='order'),

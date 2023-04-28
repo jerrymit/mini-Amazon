@@ -9,3 +9,8 @@
   .custom-background {
     background: linear-gradient(to bottom, #000000, #c36609);
   }
+
+  .btn-white {
+    background-color: #fff;
+    color: #000;
+  }
