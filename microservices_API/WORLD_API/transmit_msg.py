@@ -2,8 +2,8 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _EncodeVarint
 import invocated_files.amazon_ups_pb2 as amazon_ups_pb2
 import invocated_files.world_amazon_pb2 as world_amazon_pb2
-from construct_msg import *
-from worldAPI_query import *
+from WORLD_API.construct_msg import *
+from WORLD_API.worldAPI_query import *
 
 
 def send_command(commands, socket):
@@ -14,9 +14,13 @@ def send_command(commands, socket):
 def receive(socket):
     var_int_buff = []
     while True:
-        buf = socket.recv(1)
-        var_int_buff += buf
-        msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
+        try:
+            buf = socket.recv(1)
+            var_int_buff += buf
+            msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
+        except Exception as e:
+            print(e)
+            raise e
         if new_pos != 0:
             break
     whole_msg = socket.recv(msg_len)

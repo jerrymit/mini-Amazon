@@ -25,21 +25,21 @@ def internal_connection():
     internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # get local machine name
-    #host = '152.3.53.130'
-    host = '152.3.54.140'
+    host = '152.3.53.130'
+    #host = '152.3.54.140'
     # set the port for UPS to connect to
     port = 7777
     internal_socket.bind((host, port))
     return internal_socket
 
 
-#LOCAL_HOST = '152.3.53.130'
-LOCAL_HOST = '152.3.54.140'
+LOCAL_HOST = '152.3.53.130'
+#LOCAL_HOST = '152.3.54.140'
 LOCAL_PORT = 7777
 
 if __name__ == "__main__":
-    #Base.metadata.drop_all(engine)
-    #Base.metadata.create_all(engine)
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
         
     while True:
         try:

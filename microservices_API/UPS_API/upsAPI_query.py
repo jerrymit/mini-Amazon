@@ -12,6 +12,7 @@ def give_package_truckid(package_id, truck_id):
     session = Session()
     package = session.query(Package).filter_by(package_id=package_id).first()
     package.truck_id = truck_id
+    session.commit()
     print("Package id: ", package.package_id)
     print("Destination x: ", package.destination_x)
     print("Destination y: ", package.destination_y)

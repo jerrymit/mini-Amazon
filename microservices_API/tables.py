@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
-db_url = "postgresql://postgres:amazon@127.0.0.1:5432/amazon5"
+db_url = "postgresql://postgres:passw0rd@127.0.0.1:5432/amazon2"
 
 class Commodity(Base):
     __tablename__ = 'amazon_commodity'
