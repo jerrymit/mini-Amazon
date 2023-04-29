@@ -155,7 +155,7 @@ def handle_request(request, shared_data):
         whnum = 1
         # for order in orders:
         #     whnum = order.warehouse_id
-        APutOnTruck = construct_APutOnTruck(truck_id, whnum, package_id, seqnum)
+        APutOnTruck = construct_APutOnTruck(whnum, truck_id, package_id, seqnum)
         with data_lock:
             shared_data['load'].append(APutOnTruck)
 
@@ -206,12 +206,11 @@ if __name__ == '__main__':
         if world_socket not in read_sockets:
             print("no response from world server")
         else:
-            while True:
-                try:
-                    AResponse = receive_AResponse(world_socket)
-                    break  # If successful, exit the loop
-                except:
-                    print("Error receiving message from WORLD server. Retrying...")
+            try:
+                AResponse = receive_AResponse(world_socket)
+                  # If successful, exit the loop
+            except:
+                print("Error receiving message from WORLD server...")
             print("received response from world server\n", AResponse)
             if len(AResponse.acks) > 0:
                 acksList = construct_acksList_from_response(AResponse)
