@@ -1,0 +1,25 @@
+Danger log 4.8: After receiving feedback from the TA, we collaborated with the UPS team to develop a more reliable protocol specification.
+
+Danger log 4.10: When a new purchase request is created at the front-end, it should notify the back-end and perform database manipulations.
+
+Therefore, we established a socket for communication between the mini-Amazon front-end and back-end.
+
+Danger log 4.11: Attempting to establish communication with the outside world and UPS, we encountered and debugged several bugs.
+
+Danger log 4.12: We added a user_id field to our frontend design. Users are now required to input their UPS user_id in the frontend HTML file to make purchases.
+
+Danger log 4.13: As our original backend design was not functional, we switched to a microservices design. Our code was divided into four parts: Django (frontend), UI_API, UPS_API, and WORLD_API.
+
+Danger log 4.14: Added the function of  “add_product” and “add_warehouse” to let us test.
+
+Danger log 4.15: Working with the UPS team, we attempted to establish successful communication between our systems. We encountered and resolved multiple bugs during the package communication process, and eventually reached the "packed" stage.
+
+4.18: Implemented the "add_product" and "add_warehouse" functions to enable testing of the shopping cart feature on the home and buy pages. Resolved various bugs on the shopping cart web page.
+
+4.19: Developed additional pages on the frontend and incorporated new functionalities.
+
+4.20: Initialized the products and warehouse databases and removed the "add_product" and "add_warehouse" functions.
+
+4.24: Successfully collaborated with one of the UPS teams, but still need to establish communication with the other UPS team.
+
+4.22~4.29: Continued to address various frontend and backend bugs and worked towards achieving a functional process.
