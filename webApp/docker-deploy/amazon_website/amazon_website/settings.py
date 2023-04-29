@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-in2ewi=+^ad-lkj=%=i^41se+inkgv#+hnq^9zpv4uv*^txzo5
 # Put the website in development mode.
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['web']
 
 
 # Application definition
@@ -60,6 +60,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'amazon_website.urls'
+CSRF_TRUSTED_ORIGINS = ['http://*.vcm-xxxxx.vm.duke.edu:8000','http://*.127.0.0.1:8000','http://*.localhost:8000']
 
 # settinig html static document
 TEMPLATES = [
@@ -87,6 +88,18 @@ WSGI_APPLICATION = 'amazon_website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
+    }
+}
+
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'amazon5',
         'USER': 'postgres',
         'PASSWORD':'amazon',
@@ -94,7 +107,7 @@ DATABASES = {
         'PORT': 5432,
     }
 }
-
+'''
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

@@ -29,26 +29,26 @@
         {% endfor %}
         <h2 class="display-6 mb-4 text-white font-weight-bold">Buy a Product</h2>
         <form method="post" action="{% url 'buy' %}">
-        {% csrf_token %}
-        <style>
-            select {
-              border-radius: 20px;
-            }
-        </style>
-        <label for="description" class="display-7 mb-4 text-white font-weight-bold">Product:</label>
-        <select name="description">
-          {% for product in products %}
-            <option value="{{ product.description }}">{{ product.description }}</option>
-          {% endfor %}
-        </select><br>
-        <label for="quantity" class="display-7 mb-4 text-white font-weight-bold">Quantity:</label>
-        <input type="number" name="quantity" min="1" style="border-radius: 20px;" required><br>
-        <label for="destination_x" class="display-7 mb-4 text-white font-weight-bold">Destination X:</label>
-        <input type="number" name="destination_x" style="border-radius: 20px;" required><br>
-        <label for="destination_y" class="display-7 mb-4 text-white font-weight-bold">Destination Y:</label>
-        <input type="number" name="destination_y" style="border-radius: 20px;" required><br>
-        <button type="submit" name="add_to_cart" class="btn btn-warning btn-sm btn-block">Add to Cart</button>
-        <button type="submit" name="buy" class="btn btn-warning btn-sm btn-block">Buy</button>
+            {% csrf_token %}
+            <style>
+                select {
+                border-radius: 20px;
+                }
+            </style>
+            <label for="description" class="display-7 mb-4 text-white font-weight-bold">Product:</label>
+            <select name="description">
+            {% for product in products %}
+                <option value="{{ product.description }}">{{ product.description }}</option>
+            {% endfor %}
+            </select><br>
+            <label for="quantity" class="display-7 mb-4 text-white font-weight-bold">Quantity:</label>
+            <input type="number" name="quantity" min="1" style="border-radius: 20px;" required><br>
+            <label for="destination_x" class="display-7 mb-4 text-white font-weight-bold">Destination X:</label>
+            <input type="number" name="destination_x" style="border-radius: 20px;" required><br>
+            <label for="destination_y" class="display-7 mb-4 text-white font-weight-bold">Destination Y:</label>
+            <input type="number" name="destination_y" style="border-radius: 20px;" required><br>
+            <button type="submit" name="add_to_cart" class="btn btn-warning btn-sm btn-block">Add to Cart</button>
+            <button type="submit" name="buy" class="btn btn-warning btn-sm btn-block">Buy</button>
         </form>
     
     {% else %}
