@@ -1,6 +1,15 @@
 version: '3'
 
 services:
+  ui:
+    build: ./UI_API
+    ports:
+      - "7777:7777"
+    environment:
+      - DB_URL=postgresql://postgres:passw0rd@postgres:5432/amazon2
+    depends_on:
+      - postgres
+
   ups:
     build: ./UPS_API
     ports:
@@ -24,7 +33,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=passw0rd
-      - POSTGRES_DB=amazon2
+      - POSTGRES_DB=amazon
     volumes:
       - dbdata:/var/lib/postgresql/data
 
