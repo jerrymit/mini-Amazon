@@ -10,9 +10,10 @@ from WORLD_API.transmit_msg import *
 data_lock = threading.Lock()
 
 
-#LOCAL_HOST = '152.3.53.130'
-LOCAL_HOST = '152.3.54.140'
-EXTERNAL_HOST = '172.28.184.254'
+LOCAL_HOST = '152.3.53.130'
+#LOCAL_HOST = '152.3.54.140'
+# EXTERNAL_HOST = '172.28.184.254'
+EXTERNAL_HOST = 'vcm-30704.vm.duke.edu'
 CAROLINE_HOST = '152.3.54.6'
 JERRY_HOST = '152.3.54.140' 
 
@@ -22,7 +23,7 @@ WORLD_PORT = 23456
 world_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # set the IP address and port number of the UPS server
-AMAZON_UPS_HOST = CAROLINE_HOST  # IP address of the UPS server
+AMAZON_UPS_HOST = EXTERNAL_HOST  # IP address of the UPS server
 AMAZON_UPS_PORT = 54321 # UPS server port
 # ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # while True:
@@ -205,7 +206,14 @@ if __name__ == '__main__':
         if world_socket not in read_sockets:
             print("no response from world server")
         else:
-            AResponse = receive_AResponse(world_socket)
+            while True:
+                try:
+                    AResponse = receive_AResponse(world_socket)
+                    break  # If successful, exit the loop
+                except:
+                    print("Error receiving AResponse from world server. Retrying...")
+                
+
             print("received response from world server\n", AResponse)
             if len(AResponse.acks) > 0:
                 acksList = construct_acksList_from_response(AResponse)

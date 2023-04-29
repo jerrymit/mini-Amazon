@@ -2,12 +2,11 @@
 import socket
 import threading
 import time 
-from ups_api_subfiles.transmit_msg import *
-from ups_api_subfiles.upsAPI_query import *
+from UPS_API.transmit_msg import *
+from UPS_API.upsAPI_query import *
 
-#LOCAL_HOST = '152.3.53.130'
-LOCAL_HOST = '152.3.54.140'
-EXTERNAL_HOST = '172.28.216.179'
+LOCAL_HOST = '152.3.53.130'
+#LOCAL_HOST = '152.3.54.140'
 
 AMAZON_HOST = LOCAL_HOST
 AMAZON_PORT = 6543 # Amazon to UPS
@@ -66,7 +65,12 @@ if __name__ == '__main__':
     
     while True:
         # Receive the incoming message from the connection
-        umsg = receive_UMessage(conn)
+        while True:
+            try:
+                umsg = receive_UMessage(conn)
+                break
+            except:
+                print("Error receiving message from UPS")
         print(umsg)
         # Create a new thread to handle the incoming connection and message
         t = threading.Thread(target=handle_connection, args=(umsg,))

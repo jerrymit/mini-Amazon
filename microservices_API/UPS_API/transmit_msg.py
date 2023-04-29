@@ -7,9 +7,14 @@ import invocated_files.world_amazon_pb2 as world_amazon_pb2
 def receive(socket):
     var_int_buff = []
     while True:
-        buf = socket.recv(1)
-        var_int_buff += buf
-        msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
+        try:
+            buf = socket.recv(1)
+            var_int_buff += buf
+            msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
+        except Exception as e:
+            print("error in receive")
+            print(e)
+            raise e
         if new_pos != 0:
             break
     whole_msg = socket.recv(msg_len)
