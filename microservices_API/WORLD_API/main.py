@@ -3,15 +3,16 @@ import socket
 import time
 import select
 import threading
-from WORLD_API.construct_msg import *
-from WORLD_API.worldAPI_query import *
-from WORLD_API.transmit_msg import *
+from construct_msg import *
+from worldAPI_query import *
+from transmit_msg import *
 
 data_lock = threading.Lock()
 
 
 #LOCAL_HOST = '152.3.53.130'
-LOCAL_HOST = '152.3.54.140'
+#LOCAL_HOST = '152.3.54.140'
+LOCAL_HOST = '0.0.0.0'
 EXTERNAL_HOST = '172.28.184.254'
 CAROLINE_HOST = '152.3.54.6'
 JERRY_HOST = '152.3.54.140' 
@@ -48,7 +49,7 @@ def getWorldId():
     # set the IP address and port number of the world server
     internal_ups.bind((INTERNAL_WORLD_SERVICE_HOST, INTERNAL_WORLD_SERVICE_PORT))
     internal_ups.listen(5)
-    print("waiting for world id...")
+    print("waiting for world id...", flush=True)
     conn, addr = internal_ups.accept()
     worldid = int(conn.recv(1024).decode())
     print("world id received: ", worldid)
@@ -61,7 +62,7 @@ def initialize_world():
             ups_socket.connect((AMAZON_UPS_HOST, AMAZON_UPS_PORT))
             break
         except:
-            print("UPS server not ready yet")
+            print("UPS server not ready yet", flush=True)
             time.sleep(2)
     
     worldid = getWorldId()

@@ -1,10 +1,19 @@
 version: '3'
 
 services:
-  app:
+  ups:
     build: ./UPS_API
     ports:
       - "6543:6543"
+    environment:
+      - DB_URL=postgresql://postgres:passw0rd@postgres:5432/amazon2
+    depends_on:
+      - postgres
+      
+  world:
+    build: ./WORLD_API
+    ports:
+      - "9487:9487"
     environment:
       - DB_URL=postgresql://postgres:passw0rd@postgres:5432/amazon2
     depends_on:

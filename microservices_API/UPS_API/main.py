@@ -6,7 +6,8 @@ from transmit_msg import *
 from upsAPI_query import *
 
 #LOCAL_HOST = '152.3.53.130'
-LOCAL_HOST = '152.3.54.140'
+LOCAL_HOST = '0.0.0.0'
+LOCAL_HOST1 = '152.3.54.140'
 EXTERNAL_HOST = '172.28.216.179'
 
 AMAZON_HOST = LOCAL_HOST
@@ -55,7 +56,8 @@ if __name__ == '__main__':
     amazon_ups_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     amazon_ups_socket.bind((AMAZON_HOST, AMAZON_PORT))
     amazon_ups_socket.listen(5)
-    print("Waiting")
+    print("UPS API now listening for UPS connection...")
+    print("before accept", flush=True)
     conn, addr = amazon_ups_socket.accept()
     initWorld = receive_UtoAzConnect(conn)
     print(initWorld.worldid)
