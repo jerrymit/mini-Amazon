@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-in2ewi=+^ad-lkj=%=i^41se+inkgv#+hnq^9zpv4uv*^txzo5
 # Put the website in development mode.
 DEBUG = True
 
-ALLOWED_HOSTS = ['web', '127.0.0.1']
+ALLOWED_HOSTS = ['web']
 
 
 # Application definition
@@ -88,9 +88,9 @@ WSGI_APPLICATION = 'amazon_website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': 'amazon2',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'PASSWORD': 'passw0rd',
         'HOST': 'db',
         'PORT': 5432,
     }
