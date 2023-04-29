@@ -34,7 +34,7 @@ def internal_connection():
 
 
 #LOCAL_HOST = '152.3.53.130'
-LOCAL_HOST = '152.3.54.140'
+LOCAL_HOST = '0.0.0.0'
 LOCAL_PORT = 7777
 
 if __name__ == "__main__":
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             internal_socket.bind((LOCAL_HOST, LOCAL_PORT))
             #internal_socket = internal_connection()
             internal_socket.listen()
-            print('listening to internal requests...')
+            print('listening to internal requests...', flush = True)
             connection, address = internal_socket.accept()
             print(f"Connected to {address}")
             message = connection.recv(1024).decode()
