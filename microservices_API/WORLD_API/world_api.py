@@ -3,9 +3,9 @@ import socket
 import time
 import select
 import threading
-from WORLD_API.construct_msg import *
-from WORLD_API.worldAPI_query import *
-from WORLD_API.transmit_msg import *
+from construct_msg import *
+from worldAPI_query import *
+from transmit_msg import *
 
 data_lock = threading.Lock()
 

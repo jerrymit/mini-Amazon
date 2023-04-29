@@ -36,7 +36,6 @@ def handle_connection(umsg):
         package_id = umsg.packageDelivered.package_id
         update_package_status(package_id, "delivered")
 
-
 def sendWorldIdtoWorldService(worldid):
     internal_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while True:
@@ -48,7 +47,6 @@ def sendWorldIdtoWorldService(worldid):
             print("World Service not ready yet")
             time.sleep(1)
     internal_socket.send(worldid)
-
 
 if __name__ == '__main__':
     # Amazon - UPS socket

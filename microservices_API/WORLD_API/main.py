@@ -155,7 +155,7 @@ def handle_request(request, shared_data):
         whnum = 1
         # for order in orders:
         #     whnum = order.warehouse_id
-        APutOnTruck = construct_APutOnTruck(truck_id, whnum, package_id, seqnum)
+        APutOnTruck = construct_APutOnTruck(whnum, truck_id, package_id, seqnum)
         with data_lock:
             shared_data['load'].append(APutOnTruck)
 

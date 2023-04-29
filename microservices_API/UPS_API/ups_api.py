@@ -2,8 +2,8 @@
 import socket
 import threading
 import time 
-from UPS_API.transmit_msg import *
-from UPS_API.upsAPI_query import *
+from transmit_msg import *
+from upsAPI_query import *
 
 LOCAL_HOST = '152.3.53.130'
 #LOCAL_HOST = '152.3.54.140'
