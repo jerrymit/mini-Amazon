@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  app:
+    build: ./UPS_API
+    ports:
+      - "6543:6543"
+    environment:
+      - DB_URL=postgresql://postgres:passw0rd@postgres:5432/amazon2
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=passw0rd
+      - POSTGRES_DB=amazon2
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+volumes:
+  dbdata:

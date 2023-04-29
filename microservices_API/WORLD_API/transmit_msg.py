@@ -2,8 +2,8 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _EncodeVarint
 import invocated_files.amazon_ups_pb2 as amazon_ups_pb2
 import invocated_files.world_amazon_pb2 as world_amazon_pb2
-from world_api_subfiles.construct_msg import *
-from world_api_subfiles.worldAPI_query import *
+from WORLD_API.construct_msg import *
+from WORLD_API.worldAPI_query import *
 
 
 def send_command(commands, socket):
